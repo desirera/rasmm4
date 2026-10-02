@@ -262,8 +262,10 @@ a{text-decoration:none;color:inherit}
     <div class="order-shell">
       <div class="selected"><small>SEÇİLEN SERVİS</small><b id="selectedService">—</b></div>
       <div class="field"><label>HEDEF LİNK</label><input id="orderLink" placeholder="https://..." autocomplete="off"></div>
-      <div class="field"><label>MİKTAR</label><input id="orderQty" type="number" min="1" value="1000" oninput="calcPrice()"></div>
-      <div class="total"><span>TAHMİNİ TUTAR</span><b id="orderPrice">0.00 USDT</b></div>
+      <div class="field"><label>MİKTAR</label><input id="orderQty" type="number" min="1000" max="999999999" value="1000" oninput="calcPrice()"></div>
+      <div id="orderInfo" style="margin:-6px 0 10px;font-size:11px;color:#8f9bb3;line-height:1.5">Min: 1.000 · Max: 999.999.999</div>
+      <div class="total"><span>TAHMİNİ TUTAR</span><b id="orderPrice">0.0000 USDT</b></div>
+      <div id="orderBalanceInfo" style="margin-top:8px;text-align:center;font-size:12px;color:#8f9bb3">Miktara göre tutar: 0.0000 USDT</div>
       <button class="primary" onclick="placeOrder()">SİPARİŞİ OLUŞTUR ✦</button>
     </div>
   </section>
@@ -334,36 +336,42 @@ a{text-decoration:none;color:inherit}
 <script>
 let currentService=null;
 let currentPrice=0;
+let currentMin=1000;
+let currentMax=999999999;
+let currentDrop='';
 let telegramId=null;
 
 const services={
  Instagram:[
-  ['İçerik Promosyonu','Kampanya / görünürlük desteği',0.95],
-  ['Profil Tanıtımı','Profil erişim kampanyası',1.20],
-  ['Reels Kampanyası','Reels içerik promosyonu',1.10]
+  ['Instagram Video/Reels İzlenme','Düşüş yok · Minimum 1.000 · Maksimum 999.999.999',0.0150,1000,999999999,'Düşüş yok'],
+  ['Instagram Video/Post/Reels Beğeni','Düşüş yok · Minimum 1.000 · Maksimum 999.999.999',0.67,1000,999999999,'Düşüş yok'],
+  ['Instagram Bot Yabancı Takipçi','Düşüş yaşanabilir %50 - %80 · Minimum 1.000 · Maksimum 999.999.999',0.41,1000,999999999,'Düşüş yaşanabilir %50 - %80'],
+  ['Instagram Yabancı Gerçek Takipçi','Az düşüş %5 - %10 veya hiç · Minimum 1.000 · Maksimum 999.999.999',3.00,1000,999999999,'Az düşüş %5 - %10 veya hiç'],
+  ['Instagram Gerçek Türk Kız/Kadın Takipçi','Düşüş %0 veya %5 · Minimum 1.000 · Maksimum 999.999.999',10.21,1000,999999999,'Düşüş %0 veya %5'],
+  ['Instagram Hikaye İzlenme/Görüntüleme','Düşüş yok · Minimum 1.000 · Maksimum 999.999.999',0.0093,1000,999999999,'Düşüş yok']
  ],
  TikTok:[
-  ['Video Promosyonu','Video görünürlük kampanyası',0.90],
-  ['Profil Tanıtımı','Profil erişim kampanyası',1.15],
-  ['İçerik Kampanyası','İçerik dağıtım desteği',1.05]
+  ['Video Promosyonu','Video görünürlük kampanyası',0.90,1000,999999999,''],
+  ['Profil Tanıtımı','Profil erişim kampanyası',1.15,1000,999999999,''],
+  ['İçerik Kampanyası','İçerik dağıtım desteği',1.05,1000,999999999,'']
  ],
  YouTube:[
-  ['Video Promosyonu','Video erişim kampanyası',1.40],
-  ['Kanal Tanıtımı','Kanal görünürlük desteği',1.60],
-  ['İçerik Kampanyası','İçerik promosyonu',1.35]
+  ['Video Promosyonu','Video erişim kampanyası',1.40,1000,999999999,''],
+  ['Kanal Tanıtımı','Kanal görünürlük desteği',1.60,1000,999999999,''],
+  ['İçerik Kampanyası','İçerik promosyonu',1.35,1000,999999999,'']
  ],
  Telegram:[
-  ['Kanal Tanıtımı','Kanal görünürlük kampanyası',1.00],
-  ['İçerik Promosyonu','İçerik erişim desteği',1.10],
-  ['Topluluk Kampanyası','Topluluk tanıtım desteği',1.25]
+  ['Kanal Tanıtımı','Kanal görünürlük kampanyası',1.00,1000,999999999,''],
+  ['İçerik Promosyonu','İçerik erişim desteği',1.10,1000,999999999,''],
+  ['Topluluk Kampanyası','Topluluk tanıtım desteği',1.25,1000,999999999,'']
  ],
  'X / Twitter':[
-  ['Profil Tanıtımı','Profil erişim kampanyası',1.10],
-  ['İçerik Promosyonu','İçerik görünürlük desteği',1.00]
+  ['Profil Tanıtımı','Profil erişim kampanyası',1.10,1000,999999999,''],
+  ['İçerik Promosyonu','İçerik görünürlük desteği',1.00,1000,999999999,'']
  ],
  Facebook:[
-  ['Sayfa Tanıtımı','Sayfa görünürlük kampanyası',1.10],
-  ['İçerik Promosyonu','İçerik erişim desteği',1.00]
+  ['Sayfa Tanıtımı','Sayfa görünürlük kampanyası',1.10,1000,999999999,''],
+  ['İçerik Promosyonu','İçerik erişim desteği',1.00,1000,999999999,'']
  ]
 };
 
@@ -381,26 +389,36 @@ function showServices(name){
  list.innerHTML='';
  (services[name]||[]).forEach((s,i)=>{
    const div=document.createElement('div');div.className='service';
-   div.onclick=()=>openOrder(s[0],s[2]);
-   div.innerHTML=`<div class="line"><b>${s[0]}</b><strong>${s[2].toFixed(2)} USDT / 1K</strong></div><p>${s[1]}</p><span class="tag">AVAILABLE · ${String(i+1).padStart(2,'0')}</span>`;
+   div.onclick=()=>openOrder(s[0],s[2],s[3],s[4],s[5]);
+   div.innerHTML=`<div class="line"><b>${s[0]}</b><strong>${s[2].toFixed(4)} USDT / 1K</strong></div><p>${s[1]}</p><span class="tag">AVAILABLE · ${String(i+1).padStart(2,'0')}</span>`;
    list.appendChild(div);
  });
  openPage('services');
 }
-function openOrder(name,price){
- currentService=name;currentPrice=price;
+function openOrder(name,price,min=1000,max=999999999,drop=''){
+ currentService=name;currentPrice=price;currentMin=min;currentMax=max;currentDrop=drop;
  document.getElementById('selectedService').textContent=name;
- document.getElementById('orderQty').value=1000;
+ document.getElementById('orderQty').min=min;
+ document.getElementById('orderQty').max=max;
+ document.getElementById('orderQty').value=min;
+ const info=document.getElementById('orderInfo');
+ if(info) info.textContent=`Min: ${min.toLocaleString('tr-TR')} · Max: ${max.toLocaleString('tr-TR')} · ${drop||'Servis bilgisi'}`;
  calcPrice();openPage('order');
 }
 function calcPrice(){
- const q=Math.max(0,Number(document.getElementById('orderQty').value)||0);
- document.getElementById('orderPrice').textContent=((q/1000)*currentPrice).toFixed(2)+' USDT';
+ const input=document.getElementById('orderQty');
+ const q=Math.max(0,Number(input.value)||0);
+ const total=(q/1000)*currentPrice;
+ document.getElementById('orderPrice').textContent=total.toFixed(4)+' USDT';
+ const balanceEl=document.getElementById('orderBalanceInfo');
+ if(balanceEl) balanceEl.textContent='Miktara göre tutar: '+total.toFixed(4)+' USDT';
 }
 async function placeOrder(){
  const link=document.getElementById('orderLink').value.trim();
  const qty=Number(document.getElementById('orderQty').value);
  if(!link||!qty||!currentService){toast('Bilgileri kontrol et');return}
+ if(qty<currentMin){toast('Minimum sipariş: '+currentMin.toLocaleString('tr-TR'));return}
+ if(qty>currentMax){toast('Maksimum sipariş: '+currentMax.toLocaleString('tr-TR'));return}
  if(!telegramId){toast('Telegram bağlantısı bekleniyor');return}
  try{
   const r=await fetch('https://rasmm4-api.onrender.com/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({telegram_id:telegramId,category:'Manual',service:currentService,link,quantity:qty,price:(qty/1000)*currentPrice})});
