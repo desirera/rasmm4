@@ -406,7 +406,11 @@ async function placeOrder(){
   const r=await fetch('https://rasmm4-api.onrender.com/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({telegram_id:telegramId,category:'Manual',service:currentService,link,quantity:qty,price:(qty/1000)*currentPrice})});
   const d=await r.json();
   if(!r.ok){toast(d.error||'Sipariş oluşturulamadı');return}
-  toast('Sipariş oluşturuldu ✓');document.getElementById('orderLink').value='';openPage('orders');
+  document.getElementById('orderLink').value='';
+  await loadBalance();
+  await loadOrders();
+  toast('Sipariş oluşturuldu ✓');
+  openPage('orders');
  }catch(e){toast('Sunucu bağlantısı başarısız')}
 }
 async function loadBalance(){
@@ -416,9 +420,15 @@ async function loadBalance(){
 async function loadOrders(){
  if(!telegramId)return;
  try{
-  const r=await fetch('https://rasmm4-api.onrender.com/api/orders/'+telegramId);const d=await r.json();const box=document.getElementById('ordersList');
-  if(!r.ok||!d.orders||!d.orders.length){box.innerHTML='<div class="list-item"><b>Henüz sipariş yok</b><span>İlk siparişin burada görünecek.</span></div>';return}
-  box.innerHTML=d.orders.map(o=>`<div class="list-item"><div class="row"><b>#${o.id} · ${o.service}</b><span class="status">${o.status}</span></div><span>${o.quantity} adet · ${Number(o.price).toFixed(2)} USDT</span></div>`).join('');
+  const r=await fetch('https://rasmm4-api.onrender.com/api/orders/'+telegramId);
+  const d=await r.json();
+  const box=document.getElementById('ordersList');
+  const orders=Array.isArray(d)?d:(Array.isArray(d.orders)?d.orders:[]);
+  if(!r.ok||!orders.length){
+    box.innerHTML='<div class="list-item"><b>Henüz sipariş yok</b><span>İlk siparişin burada görünecek.</span></div>';
+    return;
+  }
+  box.innerHTML=orders.map(o=>`<div class="list-item"><div class="row"><b>#${o.id} · ${o.service}</b><span class="status">${o.status}</span></div><span>${o.quantity} adet · ${Number(o.price).toFixed(2)} USDT</span></div>`).join('');
  }catch(e){}
 }
 function openDeposit(){document.getElementById('depositModal').classList.add('show')}
