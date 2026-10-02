@@ -223,7 +223,7 @@ a{text-decoration:none;color:inherit}
 
   <!-- CATEGORIES -->
   <section id="categories" class="page">
-    <div class="section-head"><h2>Hizmet evreni</h2><span>06 CHANNELS</span></div>
+    <div class="section-head"><h2>Hizmet evreni</h2><span>05 CHANNELS</span></div>
     <div class="orbit-wrap">
       <div class="ring r1"></div><div class="ring r2"></div>
       <div class="core"><div><b>RA</b><small>SELECT CHANNEL</small></div></div>
@@ -232,7 +232,6 @@ a{text-decoration:none;color:inherit}
       <button class="cat c3" onclick="showServices('YouTube')"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8.2a2.8 2.8 0 0 0-2-2C17.2 5.7 12 5.7 12 5.7s-5.2 0-7 .5a2.8 2.8 0 0 0-2 2A29 29 0 0 0 2.5 12 29 29 0 0 0 3 15.8a2.8 2.8 0 0 0 2 2c1.8.5 7 .5 7 .5s5.2 0 7-.5a2.8 2.8 0 0 0 2-2 29 29 0 0 0 .5-3.8 29 29 0 0 0-.5-3.8z" fill="currentColor"/><path d="m10 9 5 3-5 3V9z" fill="#080a0f"/></svg></span><b>YouTube</b></button>
       <button class="cat c4" onclick="showServices('Telegram')"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 4.5 3.5 11.3c-1.2.5-1.2 1.2-.2 1.5l4.5 1.4 1.7 5.2c.2.6.1.9.7.9.5 0 .7-.2 1-.5l2.2-2.2 4.5 3.3c.8.5 1.4.2 1.6-.8L21 4.5zM8.5 13.7l9.7-6.1-7.7 7.1-.3 2.8-1.7-3.8z" fill="currentColor"/></svg></span><b>Telegram</b></button>
       <button class="cat c5" onclick="showServices('X / Twitter')"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h3.7l3.1 4.3L15.6 4H19l-5.7 6.4L19.5 20h-3.7l-3.8-5.2L7.4 20H4l6-6.8L5 4zm2.2 1.7 8.7 12.6h1.5L8.7 5.7H7.2z" fill="currentColor"/></svg></span><b>X / Twitter</b></button>
-      <button class="cat c6" onclick="showServices('Facebook')"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.7 20v-7h2.4l.4-2.8h-2.8V8.4c0-.8.2-1.4 1.5-1.4h1.5V4.5c-.3 0-1.2-.1-2.2-.1-2.2 0-3.7 1.3-3.7 3.8v2h-2.5V13h2.5v7h2.9z" fill="currentColor"/></svg></span><b>Facebook</b></button>
     </div>
     <div class="section-head"><h2>Nasıl çalışır?</h2><span>3 STEPS</span></div>
     <div class="list">
@@ -338,14 +337,22 @@ let telegramId=null;
 
 const services={
  Instagram:[
-  ['İçerik Promosyonu','Kampanya / görünürlük desteği',0.95],
-  ['Profil Tanıtımı','Profil erişim kampanyası',1.20],
-  ['Reels Kampanyası','Reels içerik promosyonu',1.10]
+  ['Instagram Video/Reels İzlenme','Düşüş yok · Minimum 1.000 · Maksimum 999.999.999',0.0150,1000,999999999,'Düşüş yok'],
+  ['Instagram Video/Post/Reels Beğeni','Düşüş yok · Minimum 1.000 · Maksimum 999.999.999',0.67,1000,999999999,'Düşüş yok'],
+  ['Instagram Bot Yabancı Takipçi','Düşüş yaşanabilir %50 - %80 · Minimum 1.000 · Maksimum 999.999.999',0.41,1000,999999999,'Düşüş yaşanabilir %50 - %80'],
+  ['Instagram Yabancı Gerçek Takipçi','Az düşüş %5 - %10 veya hiç · Minimum 1.000 · Maksimum 999.999.999',3.00,1000,999999999,'Az düşüş %5 - %10 veya hiç'],
+  ['Instagram Gerçek Türk Kız/Kadın Takipçi','Düşüş %0 veya %5 · Minimum 1.000 · Maksimum 999.999.999',10.21,1000,999999999,'Düşüş %0 veya %5'],
+  ['Instagram Hikaye İzlenme/Görüntüleme','Düşüş yok · Minimum 1.000 · Maksimum 999.999.999',0.0093,1000,999999999,'Düşüş yok'],
+  ['Instagram İsteğe Bağlı Yorum','Az düşüş · Minimum 100 · Maksimum 999.999.999',0.21,100,999999999,'Az düşüş']
  ],
  TikTok:[
-  ['Video Promosyonu','Video görünürlük kampanyası',0.90],
-  ['Profil Tanıtımı','Profil erişim kampanyası',1.15],
-  ['İçerik Kampanyası','İçerik dağıtım desteği',1.05]
+  ['TikTok Global İzlenme','Düşüş yaşanabilir veya hiç düşmeyebilir · Güncellemeye bağlı · Minimum 1.000 · Maksimum 999.999.999',0.013,1000,999999999,'Düşüş yaşanabilir veya hiç düşmeyebilir · Güncellemeye bağlı'],
+  ['TikTok Yabancı Beğeni','Düşüş yok · Minimum 1.000 · Maksimum 999.999.999',2.2,1000,999999999,'Düşüş yok'],
+  ['TikTok Türk Beğeni','Düşüş yok · Minimum 1.000 · Maksimum 999.999.999',3.5,1000,999999999,'Düşüş yok'],
+  ['TikTok Bot Beğeni','Düşüş yaşanabilir %10 veya %40 · Minimum 1.000 · Maksimum 999.999.999',0.22,1000,999999999,'Düşüş yaşanabilir %10 veya %40'],
+  ['TikTok Bot Takipçi','Düşüş yaşanabilir %10 veya %40 · Minimum 1.000 · Maksimum 999.999.999',0.94,1000,999999999,'Düşüş yaşanabilir %10 veya %40'],
+  ['TikTok Global Gerçek Takipçi','Düşüş yok · Minimum 1.000 · Maksimum 999.999.999',3.6,1000,999999999,'Düşüş yok'],
+  ['TikTok Hikaye İzlenme','Düşüş yok · Minimum 1.000 · Maksimum 999.999.999',0.71,1000,999999999,'Düşüş yok']
  ],
  YouTube:[
   ['YouTube İzlenme','Düşüş yok · Minimum 1.000 · Maksimum 999.999.999',1.60,1000,999999999,'Düşüş yok'],
@@ -357,17 +364,20 @@ const services={
   ['YouTube Gerçek Aktif Global Premium VIP Takipçi','Ömür boyu düşüş yok · Minimum 1.000 · Maksimum 999.999.999',72.60,1000,999999999,'Ömür boyu düşüş yok']
  ],
  Telegram:[
-  ['Kanal Tanıtımı','Kanal görünürlük kampanyası',1.00],
-  ['İçerik Promosyonu','İçerik erişim desteği',1.10],
-  ['Topluluk Kampanyası','Topluluk tanıtım desteği',1.25]
+  ['Telegram Post/Gönderi İzlenme/Görüntüleme','Düşüş yok · Minimum 1.000 · Maksimum 999.999.999',0.038,1000,999999999,'Düşüş yok'],
+  ['Telegram Gönderi/Post Random Emoji Tepkileri','Düşüş bilgisi belirtilmedi · Minimum 1.000 · Maksimum 999.999.999',0.03,1000,999999999,''],
+  ['Telegram Bot Grup veya Kanal Üyeleri','Düşüş yaşanabilir %10 - %40 · Minimum 1.000 · Maksimum 999.999.999',0.16,1000,999999999,'Düşüş yaşanabilir %10 - %40'],
+  ['Telegram Gerçek Grup/Kanal Üyeleri','Düşüş yok · Minimum 1.000 · Maksimum 999.999.999',2.58,1000,999999999,'Düşüş yok'],
+  ['Telegram User Grup/Kanal Üyeleri','Az düşüş yaşanabilir · Minimum 1.000 · Maksimum 999.999.999',1.00,1000,999999999,'Az düşüş yaşanabilir'],
+  ['Telegram Bot Üyelik / Bot Start Verme','Düşüş yok · Minimum 1.000 · Maksimum 999.999.999',0.63,1000,999999999,'Düşüş yok'],
+  ['Telegram Gerçek Premium VIP Grup/Kanal Üyeleri','Ömür boyu düşüş yok · Minimum 1.000 · Maksimum 999.999.999',12.50,1000,999999999,'Ömür boyu düşüş yok']
  ],
  'X / Twitter':[
-  ['Profil Tanıtımı','Profil erişim kampanyası',1.10],
-  ['İçerik Promosyonu','İçerik görünürlük desteği',1.00]
- ],
- Facebook:[
-  ['Sayfa Tanıtımı','Sayfa görünürlük kampanyası',1.10],
-  ['İçerik Promosyonu','İçerik erişim desteği',1.00]
+  ['Twitter Video İzlenme','Düşüş yok · Minimum 1.000 · Maksimum 999.999.999',0.0053,1000,999999999,'Düşüş yok'],
+  ['Twitter Post/Gönderi/Video Beğeni','Az düşüş yaşanabilir %5 - %10 · Minimum 1.000 · Maksimum 999.999.999',5.67,1000,999999999,'Az düşüş yaşanabilir %5 - %10'],
+  ['Twitter Bot Takipçi','Düşüş yaşanabilir %10 - %50 · Minimum 1.000 · Maksimum 999.999.999',2.00,1000,999999999,'Düşüş yaşanabilir %10 - %50'],
+  ['Twitter Gerçek Takipçi','Az düşüş %1 - %5 · Minimum 1.000 · Maksimum 999.999.999',10.00,1000,999999999,'Az düşüş %1 - %5'],
+  ['Twitter İsteğe Bağlı Yorum','Düşüş yok · Minimum 100 · Maksimum 999.999.999',6.48,100,999999999,'Düşüş yok']
  ]
 };
 
@@ -385,21 +395,29 @@ function showServices(name){
  list.innerHTML='';
  (services[name]||[]).forEach((s,i)=>{
    const div=document.createElement('div');div.className='service';
-   div.onclick=()=>openOrder(s[0],s[2]);
-   div.innerHTML=`<div class="line"><b>${s[0]}</b><strong>${s[2].toFixed(2)} USDT / 1K</strong></div><p>${s[1]}</p><span class="tag">AVAILABLE · ${String(i+1).padStart(2,'0')}</span>`;
+   div.onclick=()=>openOrder(s[0],s[2],s[3],s[4],s[5]);
+   div.innerHTML=`<div class="line"><b>${s[0]}</b><strong>${s[2].toFixed(4)} USDT / 1K</strong></div><p>${s[1]}</p><span class="tag">AVAILABLE · ${String(i+1).padStart(2,'0')}</span>`;
    list.appendChild(div);
  });
  openPage('services');
 }
-function openOrder(name,price){
- currentService=name;currentPrice=price;
+function openOrder(name,price,min=1000,max=999999999,drop=''){
+ currentService=name;currentPrice=price;currentMin=min;currentMax=max;currentDrop=drop;
  document.getElementById('selectedService').textContent=name;
- document.getElementById('orderQty').value=1000;
+ document.getElementById('orderQty').min=min;
+ document.getElementById('orderQty').max=max;
+ document.getElementById('orderQty').value=min;
+ const info=document.getElementById('orderInfo');
+ if(info) info.textContent=`Min: ${min.toLocaleString('tr-TR')} · Max: ${max.toLocaleString('tr-TR')} · ${drop||'Servis bilgisi'}`;
  calcPrice();openPage('order');
 }
 function calcPrice(){
- const q=Math.max(0,Number(document.getElementById('orderQty').value)||0);
- document.getElementById('orderPrice').textContent=((q/1000)*currentPrice).toFixed(2)+' USDT';
+ const input=document.getElementById('orderQty');
+ const q=Math.max(0,Number(input.value)||0);
+ const total=(q/1000)*currentPrice;
+ document.getElementById('orderPrice').textContent=total.toFixed(4)+' USDT';
+ const balanceEl=document.getElementById('orderBalanceInfo');
+ if(balanceEl) balanceEl.textContent='Miktara göre tutar: '+total.toFixed(4)+' USDT';
 }
 async function placeOrder(){
  const link=document.getElementById('orderLink').value.trim();
