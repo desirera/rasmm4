@@ -158,14 +158,43 @@ async function addBalance(){
     document.getElementById("result").innerText =
         "İşlem hazırlanıyor...";
 
-    /*
-      Bakiye endpointini backend'e eklediğimizde
-      burası gerçek işlemi yapacak.
-    */
+    const adminKey = prompt("Admin anahtarını gir:");
 
-    document.getElementById("result").innerText =
-        "Kullanıcı: " + telegramId +
-        " | Miktar: " + amount + " USDT";
+    if(!adminKey){
+        document.getElementById("result").innerText =
+            "İşlem iptal edildi.";
+        return;
+    }
+
+    try {
+        const response = await fetch(API + "/api/admin/balance", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Admin-Key": adminKey
+            },
+            body: JSON.stringify({
+                telegram_id: telegramId,
+                amount: amount
+            })
+        });
+
+        const data = await response.json();
+
+        if(!response.ok || !data.success){
+            document.getElementById("result").innerText =
+                "Hata: " + (data.error || "Bakiye eklenemedi.");
+            return;
+        }
+
+        document.getElementById("result").innerText =
+            "Bakiye eklendi. Yeni bakiye: " +
+            Number(data.balance).toFixed(2) + " USDT";
+
+    } catch(error) {
+        document.getElementById("result").innerText =
+            "Sunucu bağlantı hatası.";
+    }
 }
 
 </script>
