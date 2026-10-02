@@ -387,7 +387,7 @@ async function placeOrder(){
  if(!link||!qty||!currentService){toast('Bilgileri kontrol et');return}
  if(!telegramId){toast('Telegram bağlantısı bekleniyor');return}
  try{
-  const r=await fetch('/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({telegram_id:telegramId,category:'Manual',service:currentService,link,quantity:qty,price:(qty/1000)*currentPrice})});
+  const r=await fetch('https://rasmm4-api.onrender.com/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({telegram_id:telegramId,category:'Manual',service:currentService,link,quantity:qty,price:(qty/1000)*currentPrice})});
   const d=await r.json();
   if(!r.ok){toast(d.error||'Sipariş oluşturulamadı');return}
   toast('Sipariş oluşturuldu ✓');document.getElementById('orderLink').value='';openPage('orders');
