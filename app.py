@@ -439,6 +439,56 @@ def admin_balance():
     })
 
 
+# =========================
+# ADMIN SİPARİŞLER
+# =========================
+
+@app.route("/api/admin/orders", methods=["GET"])
+def admin_orders():
+    admin_key = request.headers.get("X-Admin-Key")
+    if admin_key != os.environ.get("ADMIN_KEY"):
+        return jsonify({"success": False, "error": "Yetkisiz erişim"}), 403
+
+    conn = db()
+    rows = conn.execute("""
+        SELECT * FROM orders
+        ORDER BY id DESC
+    """).fetchall()
+    conn.close()
+
+    return jsonify({
+        "success": True,
+        "orders": [dict(row) for row in rows]
+    })
+
+
+@app.route("/api/admin/order/<int:order_id>/status", methods=["POST"])
+def admin_order_status(order_id):
+    admin_key = request.headers.get("X-Admin-Key")
+    if admin_key != os.environ.get("ADMIN_KEY"):
+        return jsonify({"success": False, "error": "Yetkisiz erişim"}), 403
+
+    data = request.get_json() or {}
+    status = str(data.get("status", "")).strip()
+
+    allowed_statuses = {"Bekliyor", "İşleniyor", "Tamamlandı", "İptal"}
+    if status not in allowed_statuses:
+        return jsonify({"success": False, "error": "Geçersiz sipariş durumu"}), 400
+
+    conn = db()
+    order = conn.execute("SELECT id FROM orders WHERE id = ?", (order_id,)).fetchone()
+
+    if not order:
+        conn.close()
+        return jsonify({"success": False, "error": "Sipariş bulunamadı"}), 404
+
+    conn.execute("UPDATE orders SET status = ? WHERE id = ?", (status, order_id))
+    conn.commit()
+    conn.close()
+
+    return jsonify({"success": True, "order_id": order_id, "status": status})
+
+
 @app.route("/api/health")
 def health():
     return jsonify({
