@@ -396,7 +396,7 @@ function showServices(name){
  (services[name]||[]).forEach((s,i)=>{
    const div=document.createElement('div');div.className='service';
    div.onclick=()=>openOrder(s[0],s[2],s[3],s[4],s[5]);
-   div.innerHTML=`<div class="line"><b>${s[0]}</b><strong>${s[2].toFixed(4)} USDT / 1K</strong></div><p>${s[1]}</p><span class="tag">AVAILABLE · ${String(i+1).padStart(2,'0')}</span>`;
+   div.innerHTML=`<div class="line"><b>${s[0]}</b><strong>${s[2].toFixed(4)} USDT / ${s[0]==='Twitter İsteğe Bağlı Yorum'?'100':'1K'}</strong></div><p>${s[1]}</p><span class="tag">AVAILABLE · ${String(i+1).padStart(2,'0')}</span>`;
    list.appendChild(div);
  });
  openPage('services');
@@ -414,7 +414,7 @@ function openOrder(name,price,min=1000,max=999999999,drop=''){
 function calcPrice(){
  const input=document.getElementById('orderQty');
  const q=Math.max(0,Number(input.value)||0);
- const total=(q/1000)*currentPrice;
+ const total=(currentService==='Twitter İsteğe Bağlı Yorum'?(q/100)*currentPrice:(q/1000)*currentPrice);
  document.getElementById('orderPrice').textContent=total.toFixed(4)+' USDT';
  const balanceEl=document.getElementById('orderBalanceInfo');
  if(balanceEl) balanceEl.textContent='Miktara göre tutar: '+total.toFixed(4)+' USDT';
@@ -425,7 +425,7 @@ async function placeOrder(){
  if(!link||!qty||!currentService){toast('Bilgileri kontrol et');return}
  if(!telegramId){toast('Telegram bağlantısı bekleniyor');return}
  try{
-  const r=await fetch('https://rasmm4-api.onrender.com/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({telegram_id:telegramId,category:'Manual',service:currentService,link,quantity:qty,price:(qty/1000)*currentPrice})});
+  const r=await fetch('https://rasmm4-api.onrender.com/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({telegram_id:telegramId,category:'Manual',service:currentService,link,quantity:qty,price:(currentService==='Twitter İsteğe Bağlı Yorum'?(qty/100)*currentPrice:(qty/1000)*currentPrice)})});
   const d=await r.json();
   if(!r.ok){toast(d.error||'Sipariş oluşturulamadı');return}
   document.getElementById('orderLink').value='';
