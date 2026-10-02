@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RA SMM Admin</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+    margin:0;
+    background:#070910;
+    color:#fff;
+    font-family:Arial,sans-serif;
+    padding:20px;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+}
+
+h1{
+    margin-bottom:5px;
+}
+
+.subtitle{
+    color:#8991a5;
+    margin-bottom:25px;
+}
+
+.card{
+    background:#10131d;
+    border:1px solid #252a38;
+    border-radius:18px;
+    padding:20px;
+    margin-bottom:15px;
+}
+
+input,select{
+    width:100%;
+    padding:14px;
+    margin-top:8px;
+    margin-bottom:12px;
+    background:#080b12;
+    border:1px solid #303646;
+    border-radius:12px;
+    color:#fff;
+    outline:none;
+}
+
+button{
+    width:100%;
+    padding:14px;
+    border:0;
+    border-radius:12px;
+    background:linear-gradient(90deg,#e93676,#8d4cff);
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+button:active{
+    opacity:.8;
+}
+
+.stat{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+}
+
+.stat div{
+    background:#0c1018;
+    border:1px solid #252a38;
+    border-radius:15px;
+    padding:18px;
+}
+
+.stat span{
+    display:block;
+    color:#8991a5;
+    font-size:13px;
+    margin-bottom:8px;
+}
+
+.stat strong{
+    font-size:24px;
+}
+
+#result{
+    margin-top:15px;
+    color:#5ee7ff;
+    word-break:break-word;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>RA SMM ADMIN</h1>
+    <div class="subtitle">Yönetim paneli</div>
+
+    <div class="stat">
+        <div>
+            <span>SİSTEM</span>
+            <strong>LIVE</strong>
+        </div>
+
+        <div>
+            <span>AĞ</span>
+            <strong>BEP-20</strong>
+        </div>
+
+        <div>
+            <span>PARA BİRİMİ</span>
+            <strong>USDT</strong>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>Kullanıcı İşlemleri</h2>
+
+        <label>Telegram ID</label>
+        <input id="telegramId" type="number" placeholder="Telegram ID">
+
+        <label>Bakiye İşlemi</label>
+        <input id="amount" type="number" step="0.01" placeholder="USDT miktarı">
+
+        <button onclick="addBalance()">BAKİYE EKLE</button>
+
+        <div id="result"></div>
+    </div>
+
+</div>
+
+<script>
+
+const API = "https://rasmm4-api.onrender.com";
+
+async function addBalance(){
+
+    const telegramId =
+        document.getElementById("telegramId").value;
+
+    const amount =
+        document.getElementById("amount").value;
+
+    if(!telegramId || !amount){
+        document.getElementById("result").innerText =
+            "Telegram ID ve miktar gerekli.";
+        return;
+    }
+
+    document.getElementById("result").innerText =
+        "İşlem hazırlanıyor...";
+
+    /*
+      Bakiye endpointini backend'e eklediğimizde
+      burası gerçek işlemi yapacak.
+    */
+
+    document.getElementById("result").innerText =
+        "Kullanıcı: " + telegramId +
+        " | Miktar: " + amount + " USDT";
+}
+
+</script>
+
+</body>
+</html>
