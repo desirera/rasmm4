@@ -4,6 +4,14 @@ import os
 
 app = Flask(__name__)
 
+
+@app.after_request
+def add_cors_headers(response):
+    response.headers["Access-Control-Allow-Origin"] = "https://rasmm4.onrender.com"
+    response.headers["Access-Control-Allow-Headers"] = "Content-Type, X-Admin-Key"
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
+    return response
+
 DB = "rasmm.db"
 
 
