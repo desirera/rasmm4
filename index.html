@@ -395,12 +395,12 @@ async function placeOrder(){
 }
 async function loadBalance(){
  if(!telegramId)return;
- try{const r=await fetch('/api/balance/'+telegramId);const d=await r.json();if(r.ok){document.getElementById('walletBalance').textContent=Number(d.balance||0).toFixed(2)+' USDT';document.getElementById('homeBalance').innerHTML=Number(d.balance||0).toFixed(2)+' <span>USDT</span>'}}catch(e){}
+ try{const r=await fetch('https://rasmm4-api.onrender.com/api/balance/'+telegramId);const d=await r.json();if(r.ok){document.getElementById('walletBalance').textContent=Number(d.balance||0).toFixed(2)+' USDT';document.getElementById('homeBalance').innerHTML=Number(d.balance||0).toFixed(2)+' <span>USDT</span>'}}catch(e){}
 }
 async function loadOrders(){
  if(!telegramId)return;
  try{
-  const r=await fetch('/api/orders/'+telegramId);const d=await r.json();const box=document.getElementById('ordersList');
+  const r=await fetch('https://rasmm4-api.onrender.com/api/orders/'+telegramId);const d=await r.json();const box=document.getElementById('ordersList');
   if(!r.ok||!d.orders||!d.orders.length){box.innerHTML='<div class="list-item"><b>Henüz sipariş yok</b><span>İlk siparişin burada görünecek.</span></div>';return}
   box.innerHTML=d.orders.map(o=>`<div class="list-item"><div class="row"><b>#${o.id} · ${o.service}</b><span class="status">${o.status}</span></div><span>${o.quantity} adet · ${Number(o.price).toFixed(2)} USDT</span></div>`).join('');
  }catch(e){}
