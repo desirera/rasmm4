@@ -431,7 +431,7 @@ async function initTelegram(){
   }
  }catch(e){console.log(e)}
 }
-initTelegram();
+window.addEventListener('load', initTelegram);
 </script>
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </body>
