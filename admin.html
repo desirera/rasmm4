@@ -842,7 +842,7 @@ async function loadOrders(){
         const data=await response.json();
         if(response.status===403){sessionStorage.removeItem("ra_admin_key");adminKey="";box.innerHTML='<div class="empty error">Admin anahtarı yanlış.</div>';return;}
         if(!response.ok||!data.success){box.innerHTML='<div class="empty error">'+(data.error||"Siparişler alınamadı.")+'</div>';return;}
-        const orders=data.orders||[];
+        const orders=(data.orders||[]).filter(order=>order.status!=="Tamamlandı");
         if(!orders.length){box.innerHTML='<div class="empty">Henüz sipariş yok.</div>';return;}
         box.innerHTML=orders.map(order=>`
             <div class="order-item">
@@ -878,6 +878,9 @@ async function updateOrderStatus(id,status){
         const data=await response.json();
         if(response.status===403){sessionStorage.removeItem("ra_admin_key");adminKey="";alert("Admin anahtarı yanlış.");return;}
         if(!response.ok||!data.success){alert(data.error||"Sipariş durumu değiştirilemedi.");return;}
+        if(status === "Tamamlandı"){
+            alert("Sipariş tamamlandı ve admin panelinden kaldırıldı.");
+        }
         loadOrders();
     }catch(error){alert("Sunucu bağlantı hatası.");}
 }
