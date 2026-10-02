@@ -407,6 +407,13 @@ async function placeOrder(){
   const d=await r.json();
   if(!r.ok){toast(d.error||'Sipariş oluşturulamadı');return}
   document.getElementById('orderLink').value='';
+  if(d.balance !== undefined){
+   const b=Number(d.balance).toFixed(2);
+   const wb=document.getElementById('walletBalance');
+   const hb=document.getElementById('homeBalance');
+   if(wb) wb.textContent=b+' USDT';
+   if(hb) hb.innerHTML=b+' <span>USDT</span>';
+  }
   await loadBalance();
   await loadOrders();
   toast('Sipariş oluşturuldu ✓');
