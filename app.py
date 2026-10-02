@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, send_from_directory
-import sqlite3
 import os
+import psycopg2
+from psycopg2.extras import RealDictCursor
 
 app = Flask(__name__)
 
@@ -12,13 +13,66 @@ def add_cors_headers(response):
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
     return response
 
-DB = "rasmm.db"
+
+class PGCursor:
+    def __init__(self, cursor):
+        self._cursor = cursor
+        self._inserted_id = None
+
+    def execute(self, sql, params=None):
+        sql = sql.replace("?", "%s")
+        self._inserted_id = None
+
+        # SQLite AUTOINCREMENT -> PostgreSQL identity column is handled in init_db.
+        # Capture inserted IDs for the two existing lastrowid usages.
+        stripped = sql.strip().upper()
+        if stripped.startswith("INSERT INTO ORDERS") or stripped.startswith("INSERT INTO PAYMENT_REQUESTS"):
+            if "RETURNING ID" not in stripped:
+                sql = sql.rstrip().rstrip(";") + " RETURNING id"
+
+        return self._cursor.execute(sql, params)
+
+    def fetchone(self):
+        return self._cursor.fetchone()
+
+    def fetchall(self):
+        return self._cursor.fetchall()
+
+    @property
+    def lastrowid(self):
+        if self._inserted_id is None:
+            row = self._cursor.fetchone()
+            if row:
+                self._inserted_id = row["id"]
+        return self._inserted_id
+
+
+class PGConnection:
+    def __init__(self, connection):
+        self._connection = connection
+
+    def execute(self, sql, params=None):
+        cur = PGCursor(self._connection.cursor())
+        cur.execute(sql, params)
+        return cur
+
+    def commit(self):
+        self._connection.commit()
+
+    def rollback(self):
+        self._connection.rollback()
+
+    def close(self):
+        self._connection.close()
 
 
 def db():
-    conn = sqlite3.connect(DB)
-    conn.row_factory = sqlite3.Row
-    return conn
+    database_url = os.environ.get("DATABASE_URL")
+    if not database_url:
+        raise RuntimeError("DATABASE_URL ortam değişkeni bulunamadı.")
+    return PGConnection(
+        psycopg2.connect(database_url, cursor_factory=RealDictCursor)
+    )
 
 
 def init_db():
@@ -29,32 +83,32 @@ def init_db():
             telegram_id TEXT PRIMARY KEY,
             username TEXT,
             first_name TEXT,
-            balance REAL DEFAULT 0
+            balance DOUBLE PRECISION DEFAULT 0
         )
     """)
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS orders (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id BIGSERIAL PRIMARY KEY,
             telegram_id TEXT,
             category TEXT,
             service TEXT,
             link TEXT,
             quantity INTEGER,
-            price REAL,
+            price DOUBLE PRECISION,
             status TEXT DEFAULT 'Bekliyor',
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
 
     conn.execute("""
         CREATE TABLE IF NOT EXISTS payment_requests (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id BIGSERIAL PRIMARY KEY,
             telegram_id TEXT,
-            amount REAL,
-            txid TEXT,
+            amount DOUBLE PRECISION,
+            txid TEXT UNIQUE,
             status TEXT DEFAULT 'Bekliyor',
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
 
@@ -63,7 +117,6 @@ def init_db():
 
 
 init_db()
-
 
 @app.route("/")
 def home():
