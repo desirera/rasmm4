@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>RA SMM — VIP</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700;800&display=swap');
+
+:root{
+  --bg:#07080d;
+  --panel:#0d1018;
+  --panel2:#11151f;
+  --line:rgba(255,255,255,.08);
+  --white:#f6f7fb;
+  --muted:#8991a5;
+  --red:#ff365d;
+  --red2:#ff6b7f;
+  --cyan:#38e7ff;
+  --cyan2:#8af4ff;
+  --gold:#e7c77a;
+  --shadow:0 24px 70px rgba(0,0,0,.55);
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--white);font-family:Outfit,sans-serif}
+body{min-height:100vh;overflow-x:hidden}
+button,input{font:inherit}
+button{border:0;color:inherit}
+a{text-decoration:none;color:inherit}
+
+/* ambient stage */
+.stage{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0;background:
+ radial-gradient(circle at 15% 10%,rgba(255,54,93,.12),transparent 28%),
+ radial-gradient(circle at 90% 25%,rgba(56,231,255,.11),transparent 30%),
+ radial-gradient(circle at 50% 100%,rgba(100,60,255,.08),transparent 35%)}
+.orb{position:absolute;border-radius:50%;filter:blur(2px);opacity:.45}
+.o1{width:240px;height:240px;left:-110px;top:180px;background:radial-gradient(circle,#ff365d,transparent 68%);animation:float1 9s ease-in-out infinite}
+.o2{width:300px;height:300px;right:-140px;top:500px;background:radial-gradient(circle,#38e7ff,transparent 68%);animation:float2 11s ease-in-out infinite}
+.grid{position:absolute;inset:0;opacity:.18;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:44px 44px;transform:perspective(500px) rotateX(58deg) translateY(45%);transform-origin:center bottom}
+@keyframes float1{50%{transform:translate(80px,-40px) scale(1.2)}}
+@keyframes float2{50%{transform:translate(-80px,45px) scale(.8)}}
+
+.app{position:relative;z-index:1;max-width:520px;margin:auto;padding:18px 16px 105px}
+
+/* top */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.brand{display:flex;align-items:center;gap:11px}
+.logo{width:43px;height:43px;border-radius:15px;position:relative;display:grid;place-items:center;background:linear-gradient(145deg,#171b27,#080a10);border:1px solid rgba(255,255,255,.12);box-shadow:0 0 0 1px rgba(255,54,93,.13),0 0 28px rgba(255,54,93,.14);overflow:hidden}
+.logo:before{content:"";position:absolute;width:30px;height:30px;border:1px solid var(--cyan);border-radius:50%;animation:spin 5s linear infinite;box-shadow:0 0 15px rgba(56,231,255,.35)}
+.logo b{font-size:14px;letter-spacing:-1px;z-index:1}
+.brandtxt strong{display:block;font-size:18px;letter-spacing:.5px}
+.brandtxt span{font:10px 'DM Mono';color:var(--muted);letter-spacing:2px}
+.live{padding:8px 11px;border:1px solid rgba(56,231,255,.22);border-radius:30px;background:rgba(56,231,255,.06);font-size:10px;color:var(--cyan2);display:flex;align-items:center;gap:7px}
+.live i{width:6px;height:6px;border-radius:50%;background:var(--cyan);box-shadow:0 0 12px var(--cyan);animation:blink 1.3s infinite}
+@keyframes blink{50%{opacity:.2}}
+
+/* hero */
+.hero{position:relative;border:1px solid var(--line);border-radius:32px;padding:24px 21px 22px;background:linear-gradient(145deg,rgba(19,22,32,.95),rgba(8,10,15,.95));box-shadow:var(--shadow);overflow:hidden}
+.hero:after{content:"";position:absolute;inset:-2px;background:conic-gradient(from 180deg,transparent 0 28%,rgba(56,231,255,.4),transparent 43% 62%,rgba(255,54,93,.45),transparent 78%);filter:blur(22px);opacity:.22;animation:spin 8s linear infinite}
+.hero>*{position:relative;z-index:1}
+.hero-head{display:flex;justify-content:space-between;align-items:flex-start}
+.eyebrow{font:10px 'DM Mono';color:var(--muted);letter-spacing:2px}
+.hero h1{font-size:31px;line-height:1.05;margin:9px 0 7px;letter-spacing:-1.3px}
+.hero h1 em{font-style:normal;background:linear-gradient(90deg,var(--red2),#fff,var(--cyan));-webkit-background-clip:text;color:transparent}
+.hero p{margin:0;color:var(--muted);font-size:12px;line-height:1.55;max-width:260px}
+.crown{font-size:30px;filter:drop-shadow(0 0 12px rgba(231,199,122,.45));animation:crown 2.8s ease-in-out infinite}
+@keyframes crown{50%{transform:translateY(-6px) rotate(5deg)}}
+
+.balance-line{display:flex;align-items:end;justify-content:space-between;margin-top:27px}
+.balance small{display:block;color:var(--muted);font-size:11px;margin-bottom:4px}
+.balance strong{font-size:34px;letter-spacing:-1.5px}
+.balance strong span{font-size:14px;color:var(--cyan)}
+.wallet-btn{padding:11px 14px;border-radius:13px;background:#fff;color:#080a10;font-weight:700;font-size:11px;box-shadow:0 10px 25px rgba(255,255,255,.08);cursor:pointer;transition:.25s}
+.wallet-btn:active{transform:scale(.95)}
+
+.scanline{height:1px;background:linear-gradient(90deg,transparent,var(--red),var(--cyan),transparent);margin:20px 0 15px;opacity:.7}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.metric{padding:10px;border-radius:14px;background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.055)}
+.metric span{display:block;color:var(--muted);font-size:9px;margin-bottom:4px}.metric b{font-size:12px}
+
+/* marquee */
+.marquee{margin:17px 0;overflow:hidden;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:9px 0;white-space:nowrap}
+.track{display:inline-flex;gap:28px;animation:marquee 19s linear infinite;font:9px 'DM Mono';color:#aeb5c6}
+.track b{color:var(--cyan)}
+@keyframes marquee{to{transform:translateX(-50%)}}
+
+/* section */
+.section-head{display:flex;justify-content:space-between;align-items:end;margin:24px 2px 12px}
+.section-head h2{font-size:19px;margin:0;letter-spacing:-.5px}.section-head span{font-size:10px;color:var(--muted)}
+
+/* command navigation */
+.command{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:9px}.wallet-actions{grid-template-columns:1.45fr 1fr}
+.cmd{min-height:92px;border:1px solid var(--line);border-radius:21px;background:linear-gradient(145deg,#121722,#0a0c12);padding:15px;cursor:pointer;position:relative;overflow:hidden;transition:.3s}
+.cmd:before{content:"";position:absolute;width:80px;height:80px;border-radius:50%;right:-30px;bottom:-35px;background:var(--cyan);filter:blur(28px);opacity:.12}
+.cmd.red:before{background:var(--red)}
+.cmd:active{transform:scale(.96)}
+.cmd .ico{font-size:20px;margin-bottom:17px;display:block}
+.cmd b{display:block;font-size:12px}.cmd span{font-size:9px;color:var(--muted)}
+.cmd.big{grid-row:span 2;min-height:193px;background:linear-gradient(160deg,rgba(255,54,93,.12),#0b0d14 58%,rgba(56,231,255,.07))}
+.cmd.big .ico{font-size:29px;margin-bottom:72px}
+
+/* page system */
+.page{display:none;animation:pageIn .45s ease}.page.active{display:block}
+@keyframes pageIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+
+/* category orbit */
+.orbit-wrap{height:315px;position:relative;display:grid;place-items:center;margin-top:5px}
+.core{width:112px;height:112px;border-radius:50%;display:grid;place-items:center;text-align:center;background:radial-gradient(circle,#1b202d,#090b11 68%);border:1px solid rgba(255,255,255,.15);box-shadow:0 0 50px rgba(56,231,255,.12),inset 0 0 35px rgba(255,54,93,.08);z-index:2}
+.core b{font-size:16px}.core small{display:block;color:var(--muted);font-size:8px;margin-top:4px}
+.ring{position:absolute;border:1px dashed rgba(255,255,255,.12);border-radius:50%;animation:spin 18s linear infinite}
+.r1{width:215px;height:215px}.r2{width:290px;height:290px;animation-direction:reverse;animation-duration:24s}
+.cat{position:absolute;width:73px;height:73px;border-radius:22px;background:#11151f;border:1px solid rgba(255,255,255,.1);display:grid;place-items:center;cursor:pointer;box-shadow:0 14px 35px rgba(0,0,0,.35);transition:.25s}
+.cat:hover{border-color:rgba(56,231,255,.5);transform:scale(1.08)}
+.cat span{font-size:21px}.cat b{font-size:8px;position:absolute;bottom:6px;color:#c5cada}
+.cat svg{width:29px;height:29px;display:block;filter:drop-shadow(0 0 8px rgba(255,255,255,.12))}
+.cat.c1 svg{color:#ff5b9d}.cat.c2 svg{color:#ffffff}.cat.c3 svg{color:#ff4b55}
+.cat.c4 svg{color:#38e7ff}.cat.c5 svg{color:#ffffff}.cat.c6 svg{color:#5da9ff}
+
+.c1{top:9px;left:calc(50% - 36px)}.c2{right:20px;top:88px}.c3{right:55px;bottom:13px}.c4{left:55px;bottom:13px}.c5{left:20px;top:88px}.c6{left:calc(50% - 36px);bottom:-5px}
+
+/* services */
+.back{display:inline-flex;gap:7px;align-items:center;color:var(--muted);font-size:11px;margin-bottom:14px;cursor:pointer}
+.platform-strip{display:flex;gap:8px;overflow:auto;padding-bottom:4px}.platform-strip::-webkit-scrollbar{display:none}
+.plat{min-width:92px;padding:11px;border:1px solid var(--line);border-radius:15px;background:#0d1018;cursor:pointer;text-align:left}.plat b{display:block;font-size:11px}.plat span{font-size:8px;color:var(--muted)}
+.service-list{display:grid;gap:8px;margin-top:13px}
+.service{position:relative;padding:16px;border-radius:18px;background:linear-gradient(100deg,#11151e,#0b0e15);border:1px solid var(--line);cursor:pointer;overflow:hidden;transition:.25s}
+.service:after{content:"";position:absolute;right:-40px;top:-50px;width:110px;height:110px;border-radius:50%;background:var(--cyan);filter:blur(40px);opacity:.07}
+.service:hover{transform:translateX(4px);border-color:rgba(56,231,255,.3)}
+.service .line{display:flex;justify-content:space-between;gap:10px}.service b{font-size:12px}.service strong{font-size:11px;color:var(--cyan)}.service p{margin:5px 0 0;color:var(--muted);font-size:9px}.tag{display:inline-block;margin-top:8px;padding:4px 7px;border-radius:7px;background:rgba(255,54,93,.08);color:#ff8297;font-size:8px}
+
+/* order */
+.order-shell{border:1px solid var(--line);border-radius:27px;padding:19px;background:linear-gradient(145deg,#11151e,#090b11)}
+.selected{padding:13px;border-radius:15px;background:#080a0f;border:1px solid rgba(56,231,255,.14);margin-bottom:17px}
+.selected small{display:block;color:var(--muted);font-size:8px;margin-bottom:4px}.selected b{font-size:13px}
+.field{margin:12px 0}.field label{display:block;font-size:9px;color:var(--muted);margin-bottom:7px}
+.field input{width:100%;padding:14px;border-radius:13px;border:1px solid var(--line);background:#080a0f;color:#fff;outline:none;font-size:12px}
+.field input:focus{border-color:rgba(56,231,255,.55);box-shadow:0 0 0 3px rgba(56,231,255,.05)}
+.total{display:flex;justify-content:space-between;align-items:center;padding:15px 0;border-top:1px solid var(--line);margin-top:14px}.total span{color:var(--muted);font-size:10px}.total b{font-size:23px}
+.primary{width:100%;padding:16px;border-radius:15px;background:linear-gradient(100deg,var(--red),#a94bff,var(--cyan));background-size:220% 100%;animation:gradient 4s linear infinite;color:#fff;font-weight:800;letter-spacing:.3px;cursor:pointer;box-shadow:0 14px 35px rgba(255,54,93,.15)}
+@keyframes gradient{50%{background-position:100% 0}}
+
+/* lists */
+.list{display:grid;gap:9px}.list-item{padding:15px;border:1px solid var(--line);border-radius:17px;background:#0d1018}.list-item .row{display:flex;justify-content:space-between}.list-item b{font-size:11px}.list-item span{font-size:9px;color:var(--muted)}.status{color:var(--cyan)!important}
+
+/* wallet */
+.wallet{border-radius:28px;padding:23px;background:linear-gradient(135deg,#16121a,#0c1119);border:1px solid rgba(231,199,122,.18);position:relative;overflow:hidden}.wallet:before{content:"";position:absolute;width:190px;height:190px;right:-90px;top:-80px;border-radius:50%;border:1px solid rgba(231,199,122,.3);box-shadow:0 0 40px rgba(231,199,122,.08)}.wallet small{color:var(--muted);font-size:10px}.wallet h2{font-size:35px;margin:8px 0 22px}.network{display:flex;justify-content:space-between;align-items:center}.network b{font-size:10px}.network span{font:9px 'DM Mono';color:var(--cyan)}
+
+/* profile */
+.profile-top{display:flex;align-items:center;gap:14px;padding:20px;border:1px solid var(--line);border-radius:23px;background:#0d1018}.avatar{width:57px;height:57px;border-radius:18px;display:grid;place-items:center;background:linear-gradient(145deg,var(--red),#652cff);font-weight:800;font-size:19px;box-shadow:0 10px 30px rgba(255,54,93,.2)}.profile-top b{font-size:15px}.profile-top span{display:block;color:var(--muted);font-size:9px;margin-top:3px}
+
+/* bottom nav */
+.nav{position:fixed;z-index:20;bottom:13px;left:50%;transform:translateX(-50%);width:min(490px,calc(100% - 26px));height:65px;padding:7px;display:grid;grid-template-columns:repeat(5,1fr);gap:4px;border:1px solid rgba(255,255,255,.1);border-radius:24px;background:rgba(9,11,17,.87);backdrop-filter:blur(18px);box-shadow:0 20px 55px rgba(0,0,0,.6)}
+.nav button{background:transparent;border-radius:17px;color:#70798d;font-size:9px;cursor:pointer;transition:.25s}.nav button i{display:block;font-style:normal;font-size:18px;margin-bottom:3px}.nav button.active{background:linear-gradient(145deg,rgba(255,54,93,.16),rgba(56,231,255,.09));color:#fff;box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
+
+/* modal/toast */
+.modal{position:fixed;inset:0;z-index:50;display:none;align-items:end;justify-content:center;background:rgba(0,0,0,.65);backdrop-filter:blur(9px)}.modal.show{display:flex}.sheet{width:min(520px,100%);padding:22px 18px 30px;border-radius:28px 28px 0 0;background:#0e1119;border:1px solid var(--line);animation:sheet .35s ease}.sheet h3{margin:0 0 4px}.sheet p{margin:0 0 18px;color:var(--muted);font-size:10px}.address{padding:14px;border-radius:13px;background:#080a0f;border:1px dashed rgba(56,231,255,.35);font:10px 'DM Mono';word-break:break-all;color:var(--cyan)}.close{width:100%;padding:13px;border-radius:13px;background:#1a1e29;margin-top:10px;cursor:pointer}
+@keyframes sheet{from{transform:translateY(100%)}to{transform:none}}
+.toast{position:fixed;z-index:100;top:18px;left:50%;transform:translate(-50%,-20px);opacity:0;padding:11px 15px;border-radius:13px;background:#f7f7f8;color:#080a0f;font-size:10px;font-weight:700;transition:.3s;pointer-events:none}.toast.show{transform:translate(-50%,0);opacity:1}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+@media(max-width:360px){.hero h1{font-size:27px}.command{grid-template-columns:1fr 1fr}.cmd.big{grid-column:span 2;grid-row:auto;min-height:140px}.cmd.big .ico{margin-bottom:35px}}
+
+.cmd .icon-svg{width:28px;height:28px;display:block;margin-left:auto;margin-right:auto;color:#aeb6c8;filter:drop-shadow(0 0 8px rgba(56,231,255,.12))}
+.cmd.big .icon-svg{width:34px;height:34px;margin-left:auto;margin-right:auto;color:#dfe7f7}
+.cmd.red .icon-svg{margin-left:auto;margin-right:auto;color:#ff6b7f}
+.nav button i svg{width:21px;height:21px;display:block;margin:0 auto 4px}
+.nav button.active i svg{filter:drop-shadow(0 0 7px rgba(56,231,255,.18))}
+</style>
+</head>
+<body>
+<div class="stage"><div class="orb o1"></div><div class="orb o2"></div><div class="grid"></div></div>
+
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <div class="logo"><b>RA</b></div>
+      <div class="brandtxt"><strong>RA SMM</strong><span>SOSYAL MEDYA AĞLARI İÇİN VIP HİZMET</span></div>
+    </div>
+    <div class="live"><i></i> ONLINE</div>
+  </header>
+
+  <!-- HOME -->
+  <section id="home" class="page active">
+    <div class="hero">
+      <div class="hero-head">
+        <div><div class="eyebrow">VIP MEMBER AREA / 01</div><h1>Hizmetin<br><em>yeni seviyesi.</em></h1><p>Premium servis merkezine hoş geldin. Tüm işlemler tek bir hızlı akışta.</p></div>
+        <div class="crown">♛</div>
+      </div>
+      <div class="balance-line">
+        <div class="balance"><small>MEVCUT BAKİYE</small><strong id="homeBalance">0.00 <span>USDT</span></strong></div>
+        <button class="wallet-btn" onclick="openPage('wallet')">CÜZDAN →</button>
+      </div>
+      <div class="scanline"></div>
+      <div class="metrics">
+        <div class="metric"><span>AKTİF</span><b>99.8%</b></div>
+        <div class="metric"><span>SİSTEM</span><b>LIVE</b></div>
+        <div class="metric"><span>AĞ</span><b>BEP-20</b></div>
+      </div>
+    </div>
+
+    <div class="marquee"><div class="track">
+      <span>RA SMM <b>✦</b> VIP SOCIAL SERVICES</span><span>SECURE PAYMENTS <b>✦</b></span><span>FAST DELIVERY <b>✦</b></span><span>VIP ACCESS <b>✦</b></span><span>RA SMM <b>✦</b> VIP SOCIAL SERVICES</span><span>SECURE PAYMENTS <b>✦</b></span><span>FAST DELIVERY <b>✦</b></span>
+    </div></div>
+
+    <div class="section-head"><h2>Hızlı merkez</h2><span>SELECT MODULE</span></div>
+    <div class="command">
+      <button class="cmd big red" onclick="openPage('categories')"><span class="ico icon-svg"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9.5 12 4l7 5.5v8.2a1.3 1.3 0 0 1-1.3 1.3H6.3A1.3 1.3 0 0 1 5 17.7V9.5Z" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8.5 19v-5.2h7V19M9 9h6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span><b>HİZMET MERKEZİ</b><span>Tüm kategorileri keşfet</span></button>
+      <button class="cmd" onclick="openPage('orders')"><span class="ico icon-svg"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3.8" width="14" height="17" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M9 8h6M9 12h6M9 16h4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span><b>SİPARİŞLER</b><span>Geçmiş & durum</span></button>
+      <button class="cmd" onclick="openPage('wallet')"><span class="ico icon-svg"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6.5A2.5 2.5 0 0 1 4 16.5v-9Z" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M4.5 8h13.8a1.7 1.7 0 0 1 1.7 1.7v1.8h-4.3a2.2 2.2 0 0 0 0 4.4H20" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="15.7" cy="13.7" r=".8" fill="currentColor"/></svg></span><b>BAKİYE</b><span>USDT cüzdan</span></button>
+      <button class="cmd" onclick="openPage('profile')"><span class="ico icon-svg"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span><b>PROFİL</b><span>Hesap detayları</span></button>
+      <button class="cmd" onclick="toast('Destek merkezi yakında aktif')"><span class="ico icon-svg"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 13v-1a7.5 7.5 0 0 1 15 0v1" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M5 12.5H4a1.5 1.5 0 0 0-1.5 1.5v2A1.5 1.5 0 0 0 4 17.5h1M19 12.5h1a1.5 1.5 0 0 1 1.5 1.5v2a1.5 1.5 0 0 1-1.5 1.5h-1M19 18c-.8 1.2-2.1 2-3.7 2H13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span><b>DESTEK</b><span>VIP yardım</span></button>
+    </div>
+  </section>
+
+  <!-- CATEGORIES -->
+  <section id="categories" class="page">
+    <div class="section-head"><h2>Hizmet evreni</h2><span>06 CHANNELS</span></div>
+    <div class="orbit-wrap">
+      <div class="ring r1"></div><div class="ring r2"></div>
+      <div class="core"><div><b>RA</b><small>SELECT CHANNEL</small></div></div>
+      <button class="cat c1" onclick="showServices('Instagram')"><span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="4" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="3.8" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="17.3" cy="6.8" r="1.1" fill="currentColor"/></svg></span><b>Instagram</b></button>
+      <button class="cat c2" onclick="showServices('TikTok')"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.2 4v10.1a4.3 4.3 0 1 1-3.1-4.13v2.75a1.75 1.75 0 1 0 1.75 1.75V4h2.2c.35 1.45 1.23 2.55 2.75 3.05v2.3A6.1 6.1 0 0 1 14.2 8V4z" fill="currentColor"/></svg></span><b>TikTok</b></button>
+      <button class="cat c3" onclick="showServices('YouTube')"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 8.2a2.8 2.8 0 0 0-2-2C17.2 5.7 12 5.7 12 5.7s-5.2 0-7 .5a2.8 2.8 0 0 0-2 2A29 29 0 0 0 2.5 12 29 29 0 0 0 3 15.8a2.8 2.8 0 0 0 2 2c1.8.5 7 .5 7 .5s5.2 0 7-.5a2.8 2.8 0 0 0 2-2 29 29 0 0 0 .5-3.8 29 29 0 0 0-.5-3.8z" fill="currentColor"/><path d="m10 9 5 3-5 3V9z" fill="#080a0f"/></svg></span><b>YouTube</b></button>
+      <button class="cat c4" onclick="showServices('Telegram')"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M21 4.5 3.5 11.3c-1.2.5-1.2 1.2-.2 1.5l4.5 1.4 1.7 5.2c.2.6.1.9.7.9.5 0 .7-.2 1-.5l2.2-2.2 4.5 3.3c.8.5 1.4.2 1.6-.8L21 4.5zM8.5 13.7l9.7-6.1-7.7 7.1-.3 2.8-1.7-3.8z" fill="currentColor"/></svg></span><b>Telegram</b></button>
+      <button class="cat c5" onclick="showServices('X / Twitter')"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h3.7l3.1 4.3L15.6 4H19l-5.7 6.4L19.5 20h-3.7l-3.8-5.2L7.4 20H4l6-6.8L5 4zm2.2 1.7 8.7 12.6h1.5L8.7 5.7H7.2z" fill="currentColor"/></svg></span><b>X / Twitter</b></button>
+      <button class="cat c6" onclick="showServices('Facebook')"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.7 20v-7h2.4l.4-2.8h-2.8V8.4c0-.8.2-1.4 1.5-1.4h1.5V4.5c-.3 0-1.2-.1-2.2-.1-2.2 0-3.7 1.3-3.7 3.8v2h-2.5V13h2.5v7h2.9z" fill="currentColor"/></svg></span><b>Facebook</b></button>
+    </div>
+    <div class="section-head"><h2>Nasıl çalışır?</h2><span>3 STEPS</span></div>
+    <div class="list">
+      <div class="list-item"><div class="row"><b>01 · Kanal seç</b><span>01</span></div><span>İhtiyacın olan platformu seç.</span></div>
+      <div class="list-item"><div class="row"><b>02 · Servis seç</b><span>02</span></div><span>Uygun hizmeti ve miktarı belirle.</span></div>
+      <div class="list-item"><div class="row"><b>03 · Siparişi oluştur</b><span>03</span></div><span>Bakiyen üzerinden işlemi başlat.</span></div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services" class="page">
+    <div class="back" onclick="openPage('categories')">← KATEGORİLERE DÖN</div>
+    <div class="section-head"><h2 id="serviceTitle">Instagram</h2><span>AVAILABLE SERVICES</span></div>
+    <div class="platform-strip">
+      <button class="plat" onclick="showServices('Instagram')"><b>Instagram</b><span>CHANNEL 01</span></button>
+      <button class="plat" onclick="showServices('TikTok')"><b>TikTok</b><span>CHANNEL 02</span></button>
+      <button class="plat" onclick="showServices('YouTube')"><b>YouTube</b><span>CHANNEL 03</span></button>
+      <button class="plat" onclick="showServices('Telegram')"><b>Telegram</b><span>CHANNEL 04</span></button>
+    </div>
+    <div id="serviceList" class="service-list"></div>
+  </section>
+
+  <!-- ORDER -->
+  <section id="order" class="page">
+    <div class="back" onclick="openPage('services')">← SERVİSLERE DÖN</div>
+    <div class="section-head"><h2>Sipariş terminali</h2><span>SECURE ORDER</span></div>
+    <div class="order-shell">
+      <div class="selected"><small>SEÇİLEN SERVİS</small><b id="selectedService">—</b></div>
+      <div class="field"><label>HEDEF LİNK</label><input id="orderLink" placeholder="https://..." autocomplete="off"></div>
+      <div class="field"><label>MİKTAR</label><input id="orderQty" type="number" min="1" value="1000" oninput="calcPrice()"></div>
+      <div class="total"><span>TAHMİNİ TUTAR</span><b id="orderPrice">0.00 USDT</b></div>
+      <button class="primary" onclick="placeOrder()">SİPARİŞİ OLUŞTUR ✦</button>
+    </div>
+  </section>
+
+  <!-- ORDERS -->
+  <section id="orders" class="page">
+    <div class="section-head"><h2>Sipariş akışı</h2><span>ORDER LOG</span></div>
+    <div id="ordersList" class="list"><div class="list-item"><b>Henüz sipariş yok</b><span>İlk siparişin burada görünecek.</span></div></div>
+  </section>
+
+  <!-- WALLET -->
+  <section id="wallet" class="page">
+    <div class="section-head"><h2>Private Wallet</h2><span>USDT / BEP-20</span></div>
+    <div class="wallet">
+      <small>KULLANILABİLİR BAKİYE</small>
+      <h2 id="walletBalance">0.00 USDT</h2>
+      <div class="network"><b>NETWORK</b><span>BNB SMART CHAIN · BEP-20</span></div>
+    </div>
+    <div class="section-head"><h2>Fon işlemleri</h2><span>SECURE</span></div>
+    <div class="command wallet-actions">
+      <button class="cmd big" onclick="openDeposit()"><span class="ico">＋</span><b>BAKİYE YÜKLE</b><span>USDT gönderim adresini görüntüle</span></button>
+      <button class="cmd" onclick="openPage('orders')"><span class="ico">≋</span><b>İŞLEM GEÇMİŞİ</b><span>Sipariş hareketlerini görüntüle</span></button>
+    </div>
+  </section>
+
+  <!-- PROFILE -->
+  <section id="profile" class="page">
+    <div class="section-head"><h2>Üyelik</h2><span>VIP PROFILE</span></div>
+    <div class="profile-top">
+      <div class="avatar" id="avatar">RA</div>
+      <div><b id="profileName">RA Member</b><span id="profileId">Telegram bağlantısı bekleniyor</span></div>
+    </div>
+    <div class="section-head"><h2>Üyelik durumu</h2><span>STATUS</span></div>
+    <div class="list">
+      <div class="list-item"><div class="row"><b>Hesap seviyesi</b><span class="status">VIP</span></div><span>Premium servis erişimi</span></div>
+      <div class="list-item"><div class="row"><b>Ödeme ağı</b><span>BEP-20</span></div><span>USDT / BNB Smart Chain</span></div>
+      <div class="list-item"><div class="row"><b>Destek</b><span class="status">ONLINE</span></div><span>Özel destek merkezi</span></div>
+    </div>
+  </section>
+</div>
+
+<nav class="nav">
+  <button class="active" data-page="home" onclick="openPage('home')"><i><svg viewBox="0 0 24 24"><path d="m4 10 8-6 8 6v9a1 1 0 0 1-1 1h-4.5v-5h-5v5H5a1 1 0 0 1-1-1v-9Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg></i>ANA SAYFA</button>
+  <button data-page="categories" onclick="openPage('categories')"><i><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="14" y="4" width="6" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="4" y="14" width="6" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="14" y="14" width="6" height="6" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></i>SERVİSLER</button>
+  <button data-page="orders" onclick="openPage('orders')"><i><svg viewBox="0 0 24 24"><rect x="5" y="3.8" width="14" height="17" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 8h6M9 12h6M9 16h4" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></i>SİPARİŞLER</button>
+  <button data-page="wallet" onclick="openPage('wallet')"><i><svg viewBox="0 0 24 24"><path d="M4 7.5A2.5 2.5 0 0 1 6.5 5H18a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H6.5A2.5 2.5 0 0 1 4 16.5v-9Z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4.5 8h13.8a1.7 1.7 0 0 1 1.7 1.7v1.8h-4.3a2.2 2.2 0 0 0 0 4.4H20" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="15.7" cy="13.7" r=".75" fill="currentColor"/></svg></i>BAKİYE</button>
+  <button data-page="profile" onclick="openPage('profile')"><i><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.1" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M5.5 20a6.5 6.5 0 0 1 13 0" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></i>PROFİL</button>
+</nav>
+
+<div id="depositModal" class="modal" onclick="if(event.target===this)closeDeposit()">
+  <div class="sheet">
+    <h3>USDT yükle</h3>
+    <p>Sadece <b>BEP-20</b> ağı kullan. Ödeme yaptıktan sonra TXID bilgisini destek üzerinden ilet.</p>
+    <div class="address" id="depositAddress">USDT_BEP20_ADRESINIZI_BURAYA_EKLEYIN</div>
+    <button class="primary" style="margin-top:12px" onclick="copyAddress()">ADRESİ KOPYALA</button>
+    <button class="close" onclick="closeDeposit()">KAPAT</button>
+  </div>
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+let currentService=null;
+let currentPrice=0;
+let telegramId=null;
+
+const services={
+ Instagram:[
+  ['İçerik Promosyonu','Kampanya / görünürlük desteği',0.95],
+  ['Profil Tanıtımı','Profil erişim kampanyası',1.20],
+  ['Reels Kampanyası','Reels içerik promosyonu',1.10]
+ ],
+ TikTok:[
+  ['Video Promosyonu','Video görünürlük kampanyası',0.90],
+  ['Profil Tanıtımı','Profil erişim kampanyası',1.15],
+  ['İçerik Kampanyası','İçerik dağıtım desteği',1.05]
+ ],
+ YouTube:[
+  ['Video Promosyonu','Video erişim kampanyası',1.40],
+  ['Kanal Tanıtımı','Kanal görünürlük desteği',1.60],
+  ['İçerik Kampanyası','İçerik promosyonu',1.35]
+ ],
+ Telegram:[
+  ['Kanal Tanıtımı','Kanal görünürlük kampanyası',1.00],
+  ['İçerik Promosyonu','İçerik erişim desteği',1.10],
+  ['Topluluk Kampanyası','Topluluk tanıtım desteği',1.25]
+ ],
+ 'X / Twitter':[
+  ['Profil Tanıtımı','Profil erişim kampanyası',1.10],
+  ['İçerik Promosyonu','İçerik görünürlük desteği',1.00]
+ ],
+ Facebook:[
+  ['Sayfa Tanıtımı','Sayfa görünürlük kampanyası',1.10],
+  ['İçerik Promosyonu','İçerik erişim desteği',1.00]
+ ]
+};
+
+function openPage(id){
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+ const el=document.getElementById(id); if(el)el.classList.add('active');
+ document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));
+ window.scrollTo({top:0,behavior:'smooth'});
+ if(id==='wallet')loadBalance();
+ if(id==='orders')loadOrders();
+}
+function showServices(name){
+ document.getElementById('serviceTitle').textContent=name;
+ const list=document.getElementById('serviceList');
+ list.innerHTML='';
+ (services[name]||[]).forEach((s,i)=>{
+   const div=document.createElement('div');div.className='service';
+   div.onclick=()=>openOrder(s[0],s[2]);
+   div.innerHTML=`<div class="line"><b>${s[0]}</b><strong>${s[2].toFixed(2)} USDT / 1K</strong></div><p>${s[1]}</p><span class="tag">AVAILABLE · ${String(i+1).padStart(2,'0')}</span>`;
+   list.appendChild(div);
+ });
+ openPage('services');
+}
+function openOrder(name,price){
+ currentService=name;currentPrice=price;
+ document.getElementById('selectedService').textContent=name;
+ document.getElementById('orderQty').value=1000;
+ calcPrice();openPage('order');
+}
+function calcPrice(){
+ const q=Math.max(0,Number(document.getElementById('orderQty').value)||0);
+ document.getElementById('orderPrice').textContent=((q/1000)*currentPrice).toFixed(2)+' USDT';
+}
+async function placeOrder(){
+ const link=document.getElementById('orderLink').value.trim();
+ const qty=Number(document.getElementById('orderQty').value);
+ if(!link||!qty||!currentService){toast('Bilgileri kontrol et');return}
+ if(!telegramId){toast('Telegram bağlantısı bekleniyor');return}
+ try{
+  const r=await fetch('/api/order',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({telegram_id:telegramId,category:'Manual',service:currentService,link,quantity:qty,price:(qty/1000)*currentPrice})});
+  const d=await r.json();
+  if(!r.ok){toast(d.error||'Sipariş oluşturulamadı');return}
+  toast('Sipariş oluşturuldu ✓');document.getElementById('orderLink').value='';openPage('orders');
+ }catch(e){toast('Sunucu bağlantısı başarısız')}
+}
+async function loadBalance(){
+ if(!telegramId)return;
+ try{const r=await fetch('/api/balance/'+telegramId);const d=await r.json();if(r.ok){document.getElementById('walletBalance').textContent=Number(d.balance||0).toFixed(2)+' USDT';document.getElementById('homeBalance').innerHTML=Number(d.balance||0).toFixed(2)+' <span>USDT</span>'}}catch(e){}
+}
+async function loadOrders(){
+ if(!telegramId)return;
+ try{
+  const r=await fetch('/api/orders/'+telegramId);const d=await r.json();const box=document.getElementById('ordersList');
+  if(!r.ok||!d.orders||!d.orders.length){box.innerHTML='<div class="list-item"><b>Henüz sipariş yok</b><span>İlk siparişin burada görünecek.</span></div>';return}
+  box.innerHTML=d.orders.map(o=>`<div class="list-item"><div class="row"><b>#${o.id} · ${o.service}</b><span class="status">${o.status}</span></div><span>${o.quantity} adet · ${Number(o.price).toFixed(2)} USDT</span></div>`).join('');
+ }catch(e){}
+}
+function openDeposit(){document.getElementById('depositModal').classList.add('show')}
+function closeDeposit(){document.getElementById('depositModal').classList.remove('show')}
+function copyAddress(){
+ const a=document.getElementById('depositAddress').textContent;
+ navigator.clipboard?.writeText(a);toast('Adres kopyalandı');
+}
+let toastTimer;
+function toast(msg){
+ const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),2200);
+}
+async function initTelegram(){
+ try{
+  if(window.Telegram?.WebApp){
+   Telegram.WebApp.ready();Telegram.WebApp.expand();
+   const u=Telegram.WebApp.initDataUnsafe?.user;
+   if(u){
+    telegramId=u.id;
+    document.getElementById('profileName').textContent=u.username?'@'+u.username:(u.first_name||'RA Member');
+    document.getElementById('profileId').textContent='Telegram ID · '+u.id;
+    document.getElementById('avatar').textContent=(u.first_name||'RA').slice(0,2).toUpperCase();
+    await fetch('/api/user',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({telegram_id:u.id,username:u.username||'',first_name:u.first_name||''})});
+    loadBalance();loadOrders();
+   }
+  }
+ }catch(e){console.log(e)}
+}
+initTelegram();
+</script>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+</body>
+</html>
