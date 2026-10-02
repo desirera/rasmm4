@@ -6,7 +6,9 @@
 <title>RA SMM Admin</title>
 
 <style>
-*{box-sizing:border-box}
+*{
+    box-sizing:border-box;
+}
 
 body{
     margin:0;
@@ -21,7 +23,9 @@ body{
     margin:auto;
 }
 
-h1{margin-bottom:5px}
+h1{
+    margin-bottom:5px;
+}
 
 .subtitle{
     color:#8991a5;
@@ -60,7 +64,9 @@ button{
     margin-top:5px;
 }
 
-button:active{opacity:.8}
+button:active{
+    opacity:.8;
+}
 
 .stat{
     display:grid;
@@ -83,48 +89,89 @@ button:active{opacity:.8}
     margin-bottom:8px;
 }
 
-.stat strong{font-size:24px}
+.stat strong{
+    font-size:24px;
+}
 
-#result,
-#depositResult{
+#result{
     margin-top:15px;
     color:#5ee7ff;
     word-break:break-word;
 }
 
-.payment{
-    background:#0c1018;
-    border:1px solid #252a38;
-    border-radius:15px;
+/* ÖDEME */
+.payment-item{
+    background:#080b12;
+    border:1px solid #292f40;
+    border-radius:14px;
     padding:16px;
     margin-top:12px;
 }
 
-.payment div{
-    margin-bottom:8px;
-    word-break:break-all;
+.payment-item div{
+    margin-bottom:7px;
+    word-break:break-word;
 }
 
-.payment b{
-    color:#5ee7ff;
+.payment-label{
+    color:#8991a5;
+    font-size:12px;
 }
 
-.payment button{
-    margin-top:8px;
+.payment-value{
+    color:#fff;
+    font-weight:bold;
+}
+
+.payment-status{
+    color:#ffd166;
+    font-weight:bold;
+}
+
+.payment-buttons{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin-top:14px;
+}
+
+.payment-buttons button{
+    margin:0;
+}
+
+.approve{
+    background:linear-gradient(90deg,#12b76a,#20c997);
 }
 
 .reject{
-    background:#8b2638;
+    background:linear-gradient(90deg,#e93676,#b42318);
 }
 
 .empty{
-    color:#8991a5;
     text-align:center;
-    padding:20px;
+    color:#8991a5;
+    padding:20px 5px;
+}
+
+.error{
+    color:#ff6b7a;
+}
+
+.success{
+    color:#55e6a5;
 }
 
 @media(max-width:600px){
+
+    body{
+        padding:14px;
+    }
+
     .stat{
+        grid-template-columns:1fr;
+    }
+
+    .payment-buttons{
         grid-template-columns:1fr;
     }
 }
@@ -136,7 +183,13 @@ button:active{opacity:.8}
 <div class="container">
 
     <h1>RA SMM ADMIN</h1>
-    <div class="subtitle">Yönetim paneli</div>
+
+    <div class="subtitle">
+        Yönetim paneli
+    </div>
+
+
+    <!-- DURUM -->
 
     <div class="stat">
 
@@ -158,7 +211,7 @@ button:active{opacity:.8}
     </div>
 
 
-    <!-- BAKİYE EKLE -->
+    <!-- BAKİYE -->
 
     <div class="card">
 
@@ -172,6 +225,7 @@ button:active{opacity:.8}
             placeholder="Telegram ID"
         >
 
+
         <label>Bakiye İşlemi</label>
 
         <input
@@ -181,29 +235,33 @@ button:active{opacity:.8}
             placeholder="USDT miktarı"
         >
 
+
         <button onclick="addBalance()">
             BAKİYE EKLE
         </button>
+
 
         <div id="result"></div>
 
     </div>
 
 
-    <!-- ÖDEME BİLDİRİMLERİ -->
+    <!-- BEKLEYEN ÖDEMELER -->
 
     <div class="card">
 
         <h2>💳 Bekleyen Ödemeler</h2>
 
-        <button onclick="loadDeposits()">
+        <button onclick="loadPayments()">
             ÖDEMELERİ YENİLE
         </button>
 
-        <div id="deposits">
+        <div id="payments">
+
             <div class="empty">
-                Ödemeler yükleniyor...
+                Ödemeleri görmek için yenile butonuna bas.
             </div>
+
         </div>
 
     </div>
@@ -214,6 +272,35 @@ button:active{opacity:.8}
 <script>
 
 const API = "https://rasmm4-api.onrender.com";
+
+let adminKey = sessionStorage.getItem("ra_admin_key") || "";
+
+
+/* =========================
+   ADMIN ANAHTARI
+========================= */
+
+function getAdminKey(){
+
+    if(adminKey){
+        return adminKey;
+    }
+
+    const key = prompt("Admin anahtarını gir:");
+
+    if(!key){
+        return null;
+    }
+
+    adminKey = key;
+
+    sessionStorage.setItem(
+        "ra_admin_key",
+        adminKey
+    );
+
+    return adminKey;
+}
 
 
 /* =========================
@@ -228,26 +315,37 @@ async function addBalance(){
     const amount =
         document.getElementById("amount").value;
 
+    const result =
+        document.getElementById("result");
+
+
     if(!telegramId || !amount){
 
-        document.getElementById("result").innerText =
+        result.innerText =
             "Telegram ID ve miktar gerekli.";
+
+        result.className = "error";
 
         return;
     }
 
-    const adminKey = prompt("Admin anahtarını gir:");
 
-    if(!adminKey){
+    const key = getAdminKey();
 
-        document.getElementById("result").innerText =
+    if(!key){
+
+        result.innerText =
             "İşlem iptal edildi.";
 
         return;
     }
 
-    document.getElementById("result").innerText =
-        "İşlem yapılıyor...";
+
+    result.innerText =
+        "İşlem hazırlanıyor...";
+
+    result.className = "";
+
 
     try{
 
@@ -258,7 +356,7 @@ async function addBalance(){
 
                 headers:{
                     "Content-Type":"application/json",
-                    "X-Admin-Key":adminKey
+                    "X-Admin-Key":key
                 },
 
                 body:JSON.stringify({
@@ -268,29 +366,56 @@ async function addBalance(){
             }
         );
 
-        const data = await response.json();
 
-        if(!response.ok || !data.success){
+        const data =
+            await response.json();
 
-            document.getElementById("result").innerText =
-                "Hata: " +
-                (data.error || "Bakiye eklenemedi.");
+
+        if(response.status === 403){
+
+            sessionStorage.removeItem(
+                "ra_admin_key"
+            );
+
+            adminKey = "";
+
+            result.innerText =
+                "Admin anahtarı yanlış.";
+
+            result.className = "error";
 
             return;
         }
 
-        document.getElementById("result").innerText =
-            "✅ Bakiye eklendi. Yeni bakiye: " +
+
+        if(!response.ok || !data.success){
+
+            result.innerText =
+                "Hata: " +
+                (data.error ||
+                "Bakiye eklenemedi.");
+
+            result.className = "error";
+
+            return;
+        }
+
+
+        result.innerText =
+            "Bakiye eklendi. Yeni bakiye: " +
             Number(data.balance).toFixed(2) +
             " USDT";
 
+        result.className = "success";
+
+
     }catch(error){
 
-        document.getElementById("result").innerText =
+        result.innerText =
             "Sunucu bağlantı hatası.";
 
+        result.className = "error";
     }
-
 }
 
 
@@ -298,123 +423,206 @@ async function addBalance(){
    ÖDEMELERİ GETİR
 ========================= */
 
-async function loadDeposits(){
+async function loadPayments(){
 
     const box =
-        document.getElementById("deposits");
+        document.getElementById("payments");
 
-    const adminKey =
-        prompt("Admin anahtarını gir:");
 
-    if(!adminKey){
+    const key = getAdminKey();
+
+    if(!key){
 
         box.innerHTML =
-            '<div class="empty">İşlem iptal edildi.</div>';
+            '<div class="empty error">' +
+            'İşlem iptal edildi.' +
+            '</div>';
 
         return;
     }
 
+
     box.innerHTML =
         '<div class="empty">Ödemeler yükleniyor...</div>';
+
 
     try{
 
         const response = await fetch(
-            API + "/api/admin/deposits",
+            API + "/api/admin/payments",
             {
                 method:"GET",
 
                 headers:{
-                    "X-Admin-Key":adminKey
+                    "X-Admin-Key":key
                 }
             }
         );
 
-        const data = await response.json();
 
-        if(!response.ok){
+        const data =
+            await response.json();
+
+
+        if(response.status === 403){
+
+            sessionStorage.removeItem(
+                "ra_admin_key"
+            );
+
+            adminKey = "";
 
             box.innerHTML =
-                '<div class="empty">Hata: ' +
-                (data.error || "Ödemeler alınamadı.") +
+                '<div class="empty error">' +
+                'Admin anahtarı yanlış.' +
                 '</div>';
 
             return;
         }
 
-        if(!data.length){
+
+        if(!response.ok || !data.success){
+
+            box.innerHTML =
+                '<div class="empty error">' +
+                (data.error ||
+                "Ödemeler alınamadı.") +
+                '</div>';
+
+            return;
+        }
+
+
+        const payments =
+            data.payments || [];
+
+
+        if(payments.length === 0){
 
             box.innerHTML =
                 '<div class="empty">' +
-                'Bekleyen ödeme bulunmuyor.' +
+                'Henüz ödeme bildirimi yok.' +
                 '</div>';
 
             return;
         }
 
-        box.innerHTML = "";
 
-        data.forEach(payment => {
+        box.innerHTML =
+            payments.map(payment => {
 
-            const div =
-                document.createElement("div");
+                let buttons = "";
 
-            div.className = "payment";
+                if(payment.status === "Bekliyor"){
 
-            div.innerHTML = `
+                    buttons = `
+                        <div class="payment-buttons">
 
-                <div>
-                    👤 <b>Telegram ID:</b>
-                    ${payment.telegram_id}
-                </div>
+                            <button
+                                class="approve"
+                                onclick="approvePayment(${payment.id})"
+                            >
+                                ✓ ONAYLA
+                            </button>
 
-                <div>
-                    💵 <b>Miktar:</b>
-                    ${Number(payment.amount).toFixed(2)} USDT
-                </div>
+                            <button
+                                class="reject"
+                                onclick="rejectPayment(${payment.id})"
+                            >
+                                ✕ REDDET
+                            </button>
 
-                <div>
-                    🔗 <b>TXID:</b>
-                    ${payment.txid}
-                </div>
+                        </div>
+                    `;
+                }
 
-                <div>
-                    🕐 <b>Tarih:</b>
-                    ${payment.created_at || "-"}
-                </div>
 
-                <div>
-                    📌 <b>Durum:</b>
-                    ${payment.status}
-                </div>
+                return `
 
-                <button
-                    onclick="approveDeposit(${payment.id})"
-                >
-                    ✅ ÖDEMEYİ ONAYLA
-                </button>
+                    <div class="payment-item">
 
-                <button
-                    class="reject"
-                    onclick="rejectDeposit(${payment.id})"
-                >
-                    ❌ REDDET
-                </button>
-            `;
+                        <div>
+                            <div class="payment-label">
+                                ÖDEME ID
+                            </div>
 
-            box.appendChild(div);
+                            <div class="payment-value">
+                                #${payment.id}
+                            </div>
+                        </div>
 
-        });
+
+                        <div>
+                            <div class="payment-label">
+                                TELEGRAM ID
+                            </div>
+
+                            <div class="payment-value">
+                                ${payment.telegram_id}
+                            </div>
+                        </div>
+
+
+                        <div>
+                            <div class="payment-label">
+                                TUTAR
+                            </div>
+
+                            <div class="payment-value">
+                                ${Number(payment.amount).toFixed(2)} USDT
+                            </div>
+                        </div>
+
+
+                        <div>
+                            <div class="payment-label">
+                                TXID
+                            </div>
+
+                            <div class="payment-value">
+                                ${payment.txid}
+                            </div>
+                        </div>
+
+
+                        <div>
+                            <div class="payment-label">
+                                TARİH
+                            </div>
+
+                            <div class="payment-value">
+                                ${payment.created_at || "-"}
+                            </div>
+                        </div>
+
+
+                        <div>
+                            <div class="payment-label">
+                                DURUM
+                            </div>
+
+                            <div class="payment-status">
+                                ${payment.status}
+                            </div>
+                        </div>
+
+
+                        ${buttons}
+
+                    </div>
+
+                `;
+
+            }).join("");
+
 
     }catch(error){
 
         box.innerHTML =
-            '<div class="empty">' +
+            '<div class="empty error">' +
             'Sunucu bağlantı hatası.' +
             '</div>';
-
     }
-
 }
 
 
@@ -422,53 +630,84 @@ async function loadDeposits(){
    ÖDEME ONAYLA
 ========================= */
 
-async function approveDeposit(id){
+async function approvePayment(id){
 
-    const adminKey =
-        prompt("Admin anahtarını gir:");
+    const key = getAdminKey();
 
-    if(!adminKey) return;
+    if(!key){
+        return;
+    }
+
+
+    if(!confirm(
+        "Bu ödemeyi onaylayıp kullanıcının bakiyesine eklemek istiyor musun?"
+    )){
+        return;
+    }
+
 
     try{
 
         const response = await fetch(
-            API + "/api/admin/deposit/" + id + "/approve",
+            API + "/api/admin/payment/" +
+            id +
+            "/approve",
             {
                 method:"POST",
 
                 headers:{
-                    "X-Admin-Key":adminKey
+                    "X-Admin-Key":key
                 }
             }
         );
 
-        const data = await response.json();
+
+        const data =
+            await response.json();
+
+
+        if(response.status === 403){
+
+            sessionStorage.removeItem(
+                "ra_admin_key"
+            );
+
+            adminKey = "";
+
+            alert("Admin anahtarı yanlış.");
+
+            return;
+        }
+
 
         if(!response.ok || !data.success){
 
             alert(
-                "Hata: " +
-                (data.error || "Ödeme onaylanamadı.")
+                data.error ||
+                "Ödeme onaylanamadı."
             );
 
             return;
         }
 
+
         alert(
-            "✅ Ödeme onaylandı.\n\n" +
+            "Ödeme onaylandı.\n\n" +
             "Yeni bakiye: " +
             Number(data.balance).toFixed(2) +
             " USDT"
         );
 
-        loadDeposits();
+
+        loadPayments();
+
 
     }catch(error){
 
-        alert("Sunucu bağlantı hatası.");
-
+        alert(
+            "Sunucu bağlantı hatası."
+        );
     }
-
 }
 
 
@@ -476,54 +715,82 @@ async function approveDeposit(id){
    ÖDEME REDDET
 ========================= */
 
-async function rejectDeposit(id){
+async function rejectPayment(id){
 
-    const adminKey =
-        prompt("Admin anahtarını gir:");
+    const key = getAdminKey();
 
-    if(!adminKey) return;
+    if(!key){
+        return;
+    }
+
+
+    if(!confirm(
+        "Bu ödeme bildirimini reddetmek istiyor musun?"
+    )){
+        return;
+    }
+
 
     try{
 
         const response = await fetch(
-            API + "/api/admin/deposit/" + id + "/reject",
+            API + "/api/admin/payment/" +
+            id +
+            "/reject",
             {
                 method:"POST",
 
                 headers:{
-                    "X-Admin-Key":adminKey
+                    "X-Admin-Key":key
                 }
             }
         );
 
-        const data = await response.json();
+
+        const data =
+            await response.json();
+
+
+        if(response.status === 403){
+
+            sessionStorage.removeItem(
+                "ra_admin_key"
+            );
+
+            adminKey = "";
+
+            alert("Admin anahtarı yanlış.");
+
+            return;
+        }
+
 
         if(!response.ok || !data.success){
 
             alert(
-                "Hata: " +
-                (data.error || "Ödeme reddedilemedi.")
+                data.error ||
+                "Ödeme reddedilemedi."
             );
 
             return;
         }
 
-        alert("❌ Ödeme reddedildi.");
 
-        loadDeposits();
+        alert(
+            "Ödeme bildirimi reddedildi."
+        );
+
+
+        loadPayments();
+
 
     }catch(error){
 
-        alert("Sunucu bağlantı hatası.");
-
+        alert(
+            "Sunucu bağlantı hatası."
+        );
     }
-
 }
-
-
-/* Sayfa açılınca ödemeleri çek */
-
-loadDeposits();
 
 </script>
 
