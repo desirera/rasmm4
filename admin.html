@@ -161,6 +161,25 @@ button:active{
     color:#55e6a5;
 }
 
+
+/* SİPARİŞLER */
+.order-item{
+    background:#080b12;
+    border:1px solid #292f40;
+    border-radius:14px;
+    padding:16px;
+    margin-top:12px;
+}
+.order-item div{margin-bottom:7px;word-break:break-word;}
+.order-label{color:#8991a5;font-size:12px;}
+.order-value{color:#fff;font-weight:bold;}
+.order-status{color:#5ee7ff;font-weight:bold;}
+.order-status-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:14px;}
+.order-status-buttons button{margin:0;padding:11px 8px;font-size:12px;}
+.status-processing{background:linear-gradient(90deg,#8d4cff,#5e5ce6);}
+.status-done{background:linear-gradient(90deg,#12b76a,#20c997);}
+.status-cancel{background:linear-gradient(90deg,#e93676,#b42318);}
+
 @media(max-width:600px){
 
     body{
@@ -172,6 +191,10 @@ button:active{
     }
 
     .payment-buttons{
+        grid-template-columns:1fr;
+    }
+
+    .order-status-buttons{
         grid-template-columns:1fr;
     }
 }
@@ -264,6 +287,17 @@ button:active{
 
         </div>
 
+    </div>
+
+
+    <!-- SİPARİŞLER -->
+
+    <div class="card">
+        <h2>📦 SMM Siparişleri</h2>
+        <button onclick="loadOrders()">SİPARİŞLERİ YENİLE</button>
+        <div id="orders">
+            <div class="empty">Siparişleri görmek için yenile butonuna bas.</div>
+        </div>
     </div>
 
 </div>
@@ -790,6 +824,62 @@ async function rejectPayment(id){
             "Sunucu bağlantı hatası."
         );
     }
+}
+
+
+
+/* =========================
+   SİPARİŞLERİ GETİR
+========================= */
+
+async function loadOrders(){
+    const box=document.getElementById("orders");
+    const key=getAdminKey();
+    if(!key){box.innerHTML='<div class="empty error">İşlem iptal edildi.</div>';return;}
+    box.innerHTML='<div class="empty">Siparişler yükleniyor...</div>';
+    try{
+        const response=await fetch(API+"/api/admin/orders",{method:"GET",headers:{"X-Admin-Key":key}});
+        const data=await response.json();
+        if(response.status===403){sessionStorage.removeItem("ra_admin_key");adminKey="";box.innerHTML='<div class="empty error">Admin anahtarı yanlış.</div>';return;}
+        if(!response.ok||!data.success){box.innerHTML='<div class="empty error">'+(data.error||"Siparişler alınamadı.")+'</div>';return;}
+        const orders=data.orders||[];
+        if(!orders.length){box.innerHTML='<div class="empty">Henüz sipariş yok.</div>';return;}
+        box.innerHTML=orders.map(order=>`
+            <div class="order-item">
+                <div><div class="order-label">SİPARİŞ ID</div><div class="order-value">#${order.id}</div></div>
+                <div><div class="order-label">TELEGRAM ID</div><div class="order-value">${order.telegram_id}</div></div>
+                <div><div class="order-label">KATEGORİ</div><div class="order-value">${order.category||"-"}</div></div>
+                <div><div class="order-label">SERVİS</div><div class="order-value">${order.service||"-"}</div></div>
+                <div><div class="order-label">LİNK</div><div class="order-value">${order.link||"-"}</div></div>
+                <div><div class="order-label">MİKTAR</div><div class="order-value">${Number(order.quantity||0).toLocaleString("tr-TR")}</div></div>
+                <div><div class="order-label">TUTAR</div><div class="order-value">${Number(order.price||0).toFixed(2)} USDT</div></div>
+                <div><div class="order-label">TARİH</div><div class="order-value">${order.created_at||"-"}</div></div>
+                <div><div class="order-label">DURUM</div><div class="order-status">${order.status||"Bekliyor"}</div></div>
+                <div class="order-status-buttons">
+                    <button class="status-processing" onclick="updateOrderStatus(${order.id},'İşleniyor')">İŞLENİYOR</button>
+                    <button class="status-done" onclick="updateOrderStatus(${order.id},'Tamamlandı')">TAMAMLANDI</button>
+                    <button class="status-cancel" onclick="updateOrderStatus(${order.id},'İptal')">İPTAL</button>
+                    <button onclick="updateOrderStatus(${order.id},'Bekliyor')">BEKLİYOR</button>
+                </div>
+            </div>
+        `).join("");
+    }catch(error){box.innerHTML='<div class="empty error">Sunucu bağlantı hatası.</div>';}
+}
+
+async function updateOrderStatus(id,status){
+    const key=getAdminKey();
+    if(!key)return;
+    try{
+        const response=await fetch(API+"/api/admin/order/"+id+"/status",{
+            method:"POST",
+            headers:{"Content-Type":"application/json","X-Admin-Key":key},
+            body:JSON.stringify({status:status})
+        });
+        const data=await response.json();
+        if(response.status===403){sessionStorage.removeItem("ra_admin_key");adminKey="";alert("Admin anahtarı yanlış.");return;}
+        if(!response.ok||!data.success){alert(data.error||"Sipariş durumu değiştirilemedi.");return;}
+        loadOrders();
+    }catch(error){alert("Sunucu bağlantı hatası.");}
 }
 
 </script>
