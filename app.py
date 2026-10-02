@@ -47,6 +47,17 @@ def init_db():
         )
     """)
 
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS payment_requests (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            telegram_id TEXT,
+            amount REAL,
+            txid TEXT,
+            status TEXT DEFAULT 'Bekliyor',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
     conn.commit()
     conn.close()
 
@@ -215,6 +226,163 @@ def get_orders(telegram_id):
         })
 
     return jsonify(result)
+
+
+@app.route("/api/payment", methods=["POST"])
+def create_payment_request():
+    data = request.get_json() or {}
+
+    telegram_id = str(data.get("telegram_id", ""))
+    amount = float(data.get("amount", 0))
+    txid = str(data.get("txid", "")).strip()
+
+    if not telegram_id or amount <= 0 or not txid:
+        return jsonify({
+            "success": False,
+            "error": "Tutar ve TXID gerekli"
+        }), 400
+
+    conn = db()
+
+    user = conn.execute(
+        "SELECT telegram_id FROM users WHERE telegram_id = ?",
+        (telegram_id,)
+    ).fetchone()
+
+    if not user:
+        conn.close()
+        return jsonify({
+            "success": False,
+            "error": "Kullanıcı bulunamadı"
+        }), 404
+
+    pending = conn.execute(
+        "SELECT id FROM payment_requests WHERE txid = ?",
+        (txid,)
+    ).fetchone()
+
+    if pending:
+        conn.close()
+        return jsonify({
+            "success": False,
+            "error": "Bu TXID daha önce bildirildi"
+        }), 409
+
+    cursor = conn.execute("""
+        INSERT INTO payment_requests
+        (telegram_id, amount, txid, status)
+        VALUES (?, ?, ?, 'Bekliyor')
+    """, (telegram_id, amount, txid))
+
+    request_id = cursor.lastrowid
+    conn.commit()
+    conn.close()
+
+    return jsonify({
+        "success": True,
+        "request_id": request_id,
+        "status": "Bekliyor"
+    })
+
+
+@app.route("/api/admin/payments", methods=["GET"])
+def admin_payments():
+    admin_key = request.headers.get("X-Admin-Key")
+    if admin_key != os.environ.get("ADMIN_KEY"):
+        return jsonify({"success": False, "error": "Yetkisiz erişim"}), 403
+
+    conn = db()
+    rows = conn.execute("""
+        SELECT * FROM payment_requests
+        ORDER BY id DESC
+    """).fetchall()
+    conn.close()
+
+    return jsonify({
+        "success": True,
+        "payments": [dict(row) for row in rows]
+    })
+
+
+@app.route("/api/admin/payment/<int:request_id>/approve", methods=["POST"])
+def approve_payment(request_id):
+    admin_key = request.headers.get("X-Admin-Key")
+    if admin_key != os.environ.get("ADMIN_KEY"):
+        return jsonify({"success": False, "error": "Yetkisiz erişim"}), 403
+
+    conn = db()
+    row = conn.execute(
+        "SELECT * FROM payment_requests WHERE id = ?",
+        (request_id,)
+    ).fetchone()
+
+    if not row:
+        conn.close()
+        return jsonify({"success": False, "error": "Ödeme bildirimi bulunamadı"}), 404
+
+    if row["status"] != "Bekliyor":
+        conn.close()
+        return jsonify({"success": False, "error": "Bu bildirim zaten işlendi"}), 409
+
+    user = conn.execute(
+        "SELECT balance FROM users WHERE telegram_id = ?",
+        (row["telegram_id"],)
+    ).fetchone()
+
+    if not user:
+        conn.close()
+        return jsonify({"success": False, "error": "Kullanıcı bulunamadı"}), 404
+
+    conn.execute(
+        "UPDATE users SET balance = balance + ? WHERE telegram_id = ?",
+        (row["amount"], row["telegram_id"])
+    )
+    conn.execute(
+        "UPDATE payment_requests SET status = 'Onaylandı' WHERE id = ?",
+        (request_id,)
+    )
+    conn.commit()
+
+    new_balance = conn.execute(
+        "SELECT balance FROM users WHERE telegram_id = ?",
+        (row["telegram_id"],)
+    ).fetchone()["balance"]
+    conn.close()
+
+    return jsonify({
+        "success": True,
+        "balance": new_balance
+    })
+
+
+@app.route("/api/admin/payment/<int:request_id>/reject", methods=["POST"])
+def reject_payment(request_id):
+    admin_key = request.headers.get("X-Admin-Key")
+    if admin_key != os.environ.get("ADMIN_KEY"):
+        return jsonify({"success": False, "error": "Yetkisiz erişim"}), 403
+
+    conn = db()
+    row = conn.execute(
+        "SELECT status FROM payment_requests WHERE id = ?",
+        (request_id,)
+    ).fetchone()
+
+    if not row:
+        conn.close()
+        return jsonify({"success": False, "error": "Ödeme bildirimi bulunamadı"}), 404
+
+    if row["status"] != "Bekliyor":
+        conn.close()
+        return jsonify({"success": False, "error": "Bu bildirim zaten işlendi"}), 409
+
+    conn.execute(
+        "UPDATE payment_requests SET status = 'Reddedildi' WHERE id = ?",
+        (request_id,)
+    )
+    conn.commit()
+    conn.close()
+
+    return jsonify({"success": True})
 
 
 @app.route("/api/admin/balance", methods=["POST"])
