@@ -170,6 +170,10 @@ a{text-decoration:none;color:inherit}
 .cmd.red .icon-svg{margin-left:auto;margin-right:auto;color:#ff6b7f}
 .nav button i svg{width:21px;height:21px;display:block;margin:0 auto 4px}
 .nav button.active i svg{filter:drop-shadow(0 0 7px rgba(56,231,255,.18))}
+
+/* Kategori sayfasında diğer platform sekmeleri gösterilmesin */
+.platform-strip{display:none !important;}
+
 </style>
 </head>
 <body>
@@ -413,8 +417,8 @@ async function loadOrders(){
  if(!telegramId)return;
  try{
   const r=await fetch('https://rasmm4-api.onrender.com/api/orders/'+telegramId);const d=await r.json();const box=document.getElementById('ordersList');
-  if(!r.ok||!Array.isArray(d)||!d.length){box.innerHTML='<div class="list-item"><b>Henüz sipariş yok</b><span>İlk siparişin burada görünecek.</span></div>';return}
-  box.innerHTML=d.map(o=>`<div class="list-item"><div class="row"><b>#${o.id} · ${o.service}</b><span class="status">${o.status}</span></div><span>${o.quantity} adet · ${Number(o.price).toFixed(2)} USDT</span></div>`).join('');
+  if(!r.ok||!d.orders||!d.orders.length){box.innerHTML='<div class="list-item"><b>Henüz sipariş yok</b><span>İlk siparişin burada görünecek.</span></div>';return}
+  box.innerHTML=d.orders.map(o=>`<div class="list-item"><div class="row"><b>#${o.id} · ${o.service}</b><span class="status">${o.status}</span></div><span>${o.quantity} adet · ${Number(o.price).toFixed(2)} USDT</span></div>`).join('');
  }catch(e){}
 }
 function openDeposit(){document.getElementById('depositModal').classList.add('show')}
