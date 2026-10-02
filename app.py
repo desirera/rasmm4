@@ -209,6 +209,60 @@ def get_orders(telegram_id):
     return jsonify(result)
 
 
+@app.route("/api/admin/balance", methods=["POST"])
+def admin_balance():
+    data = request.get_json() or {}
+
+    admin_key = request.headers.get("X-Admin-Key")
+    if admin_key != os.environ.get("ADMIN_KEY"):
+        return jsonify({
+            "success": False,
+            "error": "Yetkisiz erişim"
+        }), 403
+
+    telegram_id = str(data.get("telegram_id", ""))
+    amount = float(data.get("amount", 0))
+
+    if not telegram_id or amount <= 0:
+        return jsonify({
+            "success": False,
+            "error": "Geçersiz bilgiler"
+        }), 400
+
+    conn = db()
+
+    user = conn.execute(
+        "SELECT balance FROM users WHERE telegram_id = ?",
+        (telegram_id,)
+    ).fetchone()
+
+    if not user:
+        conn.close()
+        return jsonify({
+            "success": False,
+            "error": "Kullanıcı bulunamadı"
+        }), 404
+
+    conn.execute(
+        "UPDATE users SET balance = balance + ? WHERE telegram_id = ?",
+        (amount, telegram_id)
+    )
+
+    conn.commit()
+
+    new_balance = conn.execute(
+        "SELECT balance FROM users WHERE telegram_id = ?",
+        (telegram_id,)
+    ).fetchone()["balance"]
+
+    conn.close()
+
+    return jsonify({
+        "success": True,
+        "balance": new_balance
+    })
+
+
 @app.route("/api/health")
 def health():
     return jsonify({
