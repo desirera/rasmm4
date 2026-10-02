@@ -242,12 +242,20 @@ def create_order():
     order_id = cursor.lastrowid
 
     conn.commit()
+
+    new_balance_row = conn.execute(
+        "SELECT balance FROM users WHERE telegram_id = ?",
+        (telegram_id,)
+    ).fetchone()
+    new_balance = new_balance_row["balance"] if new_balance_row else 0
+
     conn.close()
 
     return jsonify({
         "success": True,
         "order_id": order_id,
-        "status": "Bekliyor"
+        "status": "Bekliyor",
+        "balance": new_balance
     })
 
 
