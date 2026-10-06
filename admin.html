@@ -263,6 +263,10 @@ button:active{
             BAKİYE EKLE
         </button>
 
+        <button onclick="removeBalance()">
+            BAKİYE SİL
+        </button>
+
 
         <div id="result"></div>
 
@@ -442,6 +446,121 @@ async function addBalance(){
 
         result.className = "success";
 
+
+    }catch(error){
+
+        result.innerText =
+            "Sunucu bağlantı hatası.";
+
+        result.className = "error";
+    }
+}
+
+
+/* =========================
+   BAKİYE SİL
+========================= */
+
+async function removeBalance(){
+
+    const telegramId =
+        document.getElementById("telegramId").value;
+
+    const amount =
+        document.getElementById("amount").value;
+
+    const result =
+        document.getElementById("result");
+
+    if(!telegramId || !amount){
+
+        result.innerText =
+            "Telegram ID ve miktar gerekli.";
+
+        result.className = "error";
+
+        return;
+    }
+
+    const key = getAdminKey();
+
+    if(!key){
+
+        result.innerText =
+            "İşlem iptal edildi.";
+
+        return;
+    }
+
+    if(!confirm(
+        "Bu kullanıcının bakiyesinden " +
+        Number(amount).toFixed(2) +
+        " USDT silmek istiyor musun?"
+    )){
+        return;
+    }
+
+    result.innerText =
+        "İşlem hazırlanıyor...";
+
+    result.className = "";
+
+    try{
+
+        const response = await fetch(
+            API + "/api/admin/balance/remove",
+            {
+                method:"POST",
+
+                headers:{
+                    "Content-Type":"application/json",
+                    "X-Admin-Key":key
+                },
+
+                body:JSON.stringify({
+                    telegram_id:telegramId,
+                    amount:amount
+                })
+            }
+        );
+
+        const data =
+            await response.json();
+
+        if(response.status === 403){
+
+            sessionStorage.removeItem(
+                "ra_admin_key"
+            );
+
+            adminKey = "";
+
+            result.innerText =
+                "Admin anahtarı yanlış.";
+
+            result.className = "error";
+
+            return;
+        }
+
+        if(!response.ok || !data.success){
+
+            result.innerText =
+                "Hata: " +
+                (data.error ||
+                "Bakiye silinemedi.");
+
+            result.className = "error";
+
+            return;
+        }
+
+        result.innerText =
+            "Bakiye silindi. Yeni bakiye: " +
+            Number(data.balance).toFixed(2) +
+            " USDT";
+
+        result.className = "success";
 
     }catch(error){
 
