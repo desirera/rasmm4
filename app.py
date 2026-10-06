@@ -500,6 +500,67 @@ def admin_balance():
     })
 
 
+@app.route("/api/admin/balance/remove", methods=["POST"])
+def admin_remove_balance():
+    data = request.get_json() or {}
+
+    admin_key = request.headers.get("X-Admin-Key")
+    if admin_key != os.environ.get("ADMIN_KEY"):
+        return jsonify({
+            "success": False,
+            "error": "Yetkisiz erişim"
+        }), 403
+
+    telegram_id = str(data.get("telegram_id", ""))
+    amount = float(data.get("amount", 0))
+
+    if not telegram_id or amount <= 0:
+        return jsonify({
+            "success": False,
+            "error": "Geçersiz bilgiler"
+        }), 400
+
+    conn = db()
+
+    user = conn.execute(
+        "SELECT balance FROM users WHERE telegram_id = ?",
+        (telegram_id,)
+    ).fetchone()
+
+    if not user:
+        conn.close()
+        return jsonify({
+            "success": False,
+            "error": "Kullanıcı bulunamadı"
+        }), 404
+
+    if user["balance"] < amount:
+        conn.close()
+        return jsonify({
+            "success": False,
+            "error": "Kullanıcının bakiyesi bu miktardan az"
+        }), 400
+
+    conn.execute(
+        "UPDATE users SET balance = balance - ? WHERE telegram_id = ?",
+        (amount, telegram_id)
+    )
+
+    conn.commit()
+
+    new_balance = conn.execute(
+        "SELECT balance FROM users WHERE telegram_id = ?",
+        (telegram_id,)
+    ).fetchone()["balance"]
+
+    conn.close()
+
+    return jsonify({
+        "success": True,
+        "balance": new_balance
+    })
+
+
 # =========================
 # ADMIN SİPARİŞLER
 # =========================
